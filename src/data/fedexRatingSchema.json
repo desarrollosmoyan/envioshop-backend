@@ -1,0 +1,31 @@
+{
+"accountNumber": {
+    "value": "781802379"
+  },
+  "requestedShipment": {
+    "shipper": {
+      "address": {
+        "postalCode": "shipperPostalCode",
+        "countryCode": "shipperCountry"
+      }
+    },
+    "recipient": {
+      "address": {
+        "postalCode": "recipientPostalCode",
+        "countryCode": "recipientCountry"
+      }
+    },
+    "pickupType": "DROPOFF_AT_FEDEX_LOCATION",
+    "serviceType": "FEDEX_EXPRESS_SAVER",
+    "packagingType": "YOUR_PACKAGING",
+    "rateRequestType": ["LIST", "ACCOUNT"],
+    "requestedPackageLineItems": [
+      {
+        "weight": {
+          "units": "KG",
+          "value": "weight"
+        }
+      }
+    ]
+  }
+}

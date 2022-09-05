@@ -1,0 +1,46 @@
+{
+    "customerDetails": {
+        "receiverDetails": {
+            "postalCode": "recipientPostalCode.toString()",
+            "countryCode": "recipientCountry",
+            "cityName": "envioshop",
+            "addressLine1": "envioshop"
+        },
+        "shipperDetails": {
+            "postalCode": "shipperPostalCode.toString()",
+            "countryCode": "shipperCountry",
+            "cityName": "envioshop",
+            "addressLine1": "envioshop",
+            "provinceCode": "MX"
+        }
+    },
+    "accounts": [
+        {
+            "typeCode": "shipper",
+            "number": "980391677"
+        }
+    ],
+    "plannedShippingDateAndTime": "2021-11-25T13:00:00GMT+00:00",
+    "unitOfMeasurement": "metric",
+    "isCustomsDeclarable": true,
+    "monetaryAmount": [
+        {
+            "typeCode": "declaredValue",
+            "value": 10,
+            "currency": "MXN"
+        }
+    ],
+    "requestAllValueAddedServices": false,
+    "returnStandardProductsOnly": false,
+    "nextBusinessDay": false,
+    "packages": [
+        {
+            "weight": 1,
+            "dimensions": {
+                "length": "length",
+                "width": "width",
+                "height": "height"
+            }
+        }
+    ]
+}
