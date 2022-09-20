@@ -1,18 +1,18 @@
-import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import axios from "axios";
-import Users from "./user.model";
 import prisma from "../../database/prisma";
 import qs from "qs";
-
+import userModel from "./model";
+import { roleName } from "./model";
 export const signupHandler = async (req: Request, res: Response) => {
   try {
-    const { password, name, email }: User = req.body;
-    const model = new Users(prisma.user);
-    const newUser = await model.signup({
-      name: name,
-      email: email,
-      password: password,
+    const { password, name, email } = req.body;
+    const newUser = await userModel.signup({
+      name: name as string,
+      email: email as string,
+      password: password as string,
+      role: roleName.admin,
+      ubication: undefined,
     });
     res.status(200).send({
       message: "User created successfully",
@@ -29,8 +29,10 @@ export const signupHandler = async (req: Request, res: Response) => {
 export const signinHandler = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-    const model = new Users(prisma.user);
-    const isLogged = await model.signin({ email: email, password: password });
+    const isLogged = await userModel.signin({
+      email: email,
+      password: password,
+    });
     if (isLogged)
       return res
         .status(200)

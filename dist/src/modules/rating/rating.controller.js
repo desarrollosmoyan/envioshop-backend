@@ -11,52 +11,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRating = void 0;
 const __1 = require("../../..");
+const utils_1 = require("../../utils/utils");
 const getRating = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("el pepe");
-        yield __1.fedexService.setAuthorizationToken();
-        const fedexRating = yield __1.fedexService.getRating(req.body);
-        const dhlRating = yield __1.dhlService.getRating(req.body);
-        const upsRating = yield __1.upsService.getRating(req.body);
-        console.log(fedexRating);
-        res
-            .status(200)
-            .send({ fedex: fedexRating, dhl: dhlRating, ups: upsRating });
+        const DHLRating = yield __1.DHLService.getRating(req.body);
+        const FEDEXRating = yield __1.FEDEXService.getRating(req.body);
+        const UPSRating = yield __1.UPSService.getRating(req.body);
+        const REDPACKRating = yield __1.REDPACKService.getRating(req.body);
+        const ESTAFETARating = yield __1.ESTAFETAService.getRating(req.body);
+        const p = yield (yield __1.redisConnection).get("FEDEXTOKEN");
+        const dataToFormat = [DHLRating, UPSRating, FEDEXRating];
+        const dataFormated = [
+            ...(0, utils_1.formatRatingResponse)(dataToFormat),
+            ESTAFETARating,
+        ].flatMap((element) => element);
+        res.status(200).json({
+            message: "Rating maked successfully",
+            data: dataFormated,
+        });
     }
     catch (error) {
         res.status(400).send({ message: "Error" });
     }
 });
 exports.getRating = getRating;
-/*try {
-  const ratingData: Rating = req.body;
-  if (!req.headers.authorization) {
-    return res.status(403).send({ message: "No auth token" });
-  }
-  //const { fedexSchema, dhlSchema, upsSchema } = formatRatingBody(ratingData);
-  const fedexResponse = await axios.post(FEDEX.rating.url, fedexSchema, {
-    headers: {
-      ...FEDEX.rating.headers,
-      Authorization: req.headers.authorization,
-    },
-  });
-  const dhlResponse = await axios.post(DHL.rating.url, dhlSchema, {
-    headers: {
-      ...DHL.rating.headers,
-    },
-  });
-
-  const upsResponse = await axios.post(UPS.rating.url, upsSchema, {
-    headers: {
-      ...UPS.rating.headers,
-    },
-  });
-  res.status(200).send({
-    fedex: fedexResponse.data,
-    dhl: dhlResponse.data,
-    ups: upsResponse.data,
-  });
-} catch (error: any) {
-  console.log(error.response);
-  res.status(400).send(error.data);
-}*/

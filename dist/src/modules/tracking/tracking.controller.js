@@ -12,14 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.trackASingleShipment = void 0;
 const trackASingleShipment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        /* await makeTrackRequest({
-          url: DHL.tracking.url,
-          headers: {
-            ...DHL.tracking.headers,
-            Authorization: DHL.Authorization,
-          },
-        });*/
+        const { trackingNumber } = req.body;
+        //const dhlResponse = await dhlService.getTracking(trackingNumber);
+        //const upsResponse = await upsService.getTracking(trackingNumber);
+        //const fedexResponse = await fedexService.getTracking(trackingNumber);
+        /*console.log(dhlResponse.data);
+        console.log(upsResponse.data.trackResponse.shipment[0].package);
+        console.log(fedexResponse.data.output.completeTrackResults[0].trackResults);*/
     }
-    catch (error) { }
+    catch (error) {
+        console.log(error);
+        console.log({ msg: error.response.data });
+    }
 });
 exports.trackASingleShipment = trackASingleShipment;

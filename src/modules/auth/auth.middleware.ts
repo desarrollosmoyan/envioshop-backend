@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { User } from "@prisma/client";
 import prisma from "../../database/prisma";
+import { checkIfUsernameOrEmailAlreadyExists } from "../../utils/utils";
 
 const ROLES = ["cashier", "admin", "franchise"];
 export const checkExistingUser = async (
@@ -9,24 +9,13 @@ export const checkExistingUser = async (
   next: NextFunction
 ) => {
   try {
-    const { name, email }: User = req.body;
-    const hasUserWithSameName = await prisma.user.findUnique({
-      where: {
-        name: name,
-      },
-    });
-    if (hasUserWithSameName) {
-      return res.status(400).send({ message: "Your username already exists" });
-    }
-    const hasUserWithSameEmail = await prisma.user.findUnique({
-      where: {
-        email: email,
-      },
-    });
-    if (hasUserWithSameEmail) {
+    const { name, email } = req.body;
+    const userWithSameNameOrSameEmail =
+      await checkIfUsernameOrEmailAlreadyExists({ name: name, email: email });
+    if (userWithSameNameOrSameEmail) {
       return res
         .status(400)
-        .send({ message: "Your email has another account linked" });
+        .send({ message: "Username or Email already exists" });
     }
     next();
   } catch (error: any) {
@@ -35,9 +24,6 @@ export const checkExistingUser = async (
   }
 };
 
-/* 
-    
-*/
 export const checkExistingRole = (
   req: Request,
   res: Response,

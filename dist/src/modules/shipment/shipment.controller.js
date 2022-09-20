@@ -10,8 +10,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createShipment = void 0;
+const __1 = require("../../..");
 const createShipment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { company } = req.body;
+        const services = {
+            FEDEX: __1.FEDEXService,
+            DHL: __1.DHLService,
+            REDPACK: __1.REDPACKService,
+            UPS: __1.UPSService,
+        };
+        const shippingService = services[company];
+        const data = yield shippingService.createShipping(req.body);
+        if (data)
+            return res.status(200).json({ shipment: data });
     }
     catch (error) { }
 });

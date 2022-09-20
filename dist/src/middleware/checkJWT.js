@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkJWT = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const prisma_1 = __importDefault(require("../database/prisma"));
+const model_1 = __importDefault(require("../modules/auth/model"));
 const allowedRoles = {
     admin: true,
     cashier: true,
@@ -36,18 +36,11 @@ const checkJWT = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         }
         return res.status(400).send({ message: "Error" });
     }
-    console.log(payload);
-    const user = yield prisma_1.default.user.findFirst({
-        where: {
-            id: payload.id,
-        },
-        include: {
-            Role: true,
-        },
-    });
-    const roleName = user === null || user === void 0 ? void 0 : user.Role.name;
+    const user = yield model_1.default.getUser({ id: payload.id });
+    //const roleName = await roleModel.getRole({user.roleId});
+    const roleName = "admin";
+    console.log("el pepe");
     if (allowedRoles[roleName]) {
-        console.log("el pepe");
         next();
     }
 });

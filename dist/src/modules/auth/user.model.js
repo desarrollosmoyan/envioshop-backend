@@ -1,101 +1,383 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const bcrypt_1 = require("bcrypt");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-class Users {
-    constructor(prismaUser) {
-        this.prismaUser = prismaUser;
-    }
-    encryptPassword({ password }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const salt = yield (0, bcrypt_1.genSalt)(10);
-            return yield (0, bcrypt_1.hash)(password, salt);
-        });
-    }
-    comparePassword({ password, receivePassword }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield (0, bcrypt_1.compare)(password, receivePassword);
-        });
-    }
-    signup(data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { password } = data;
-                const encryptedPassword = yield this.encryptPassword({
-                    password: password,
-                });
-                data.password = encryptedPassword;
-                const user = yield this.prismaUser.create({ data });
-                const token = this.generateToken({
-                    id: user.id,
-                    email: user.email,
-                    role: user.roleId,
-                });
-                return Object.assign(Object.assign({}, user), { token: token });
-            }
-            catch (error) {
-                throw error;
-            }
-        });
-    }
-    signin(data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { email, password } = data;
-                const user = yield this.prismaUser.findUniqueOrThrow({
-                    where: {
-                        email: email,
-                    },
-                });
-                if (user) {
-                    const matchPassword = yield this.comparePassword({
-                        password: password,
-                        receivePassword: user.password,
-                    });
-                    if (!matchPassword) {
-                        return null;
-                    }
-                    const token = this.generateToken({
-                        id: user.id,
-                        email: user.email,
-                        role: user.roleId,
-                    });
-                    const populatedUser = yield this.populateRole(user);
-                    return Object.assign(Object.assign({}, populatedUser), { token: token });
-                }
-            }
-            catch (error) {
-                throw error;
-            }
-        });
-    }
-    generateToken({ id, email, role, }) {
-        return jsonwebtoken_1.default.sign({ id: id, email: email, role: role }, `${process.env.SECRET_KEY_TOKEN}`);
-    }
-    populateRole(user) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const populatedUser = yield this.prismaUser.findFirst({
-                where: {
-                    id: user.id,
-                },
-                include: {
-                    Role: true,
-                },
-            });
-            return populatedUser;
-        });
-    }
+/*
+type Update = {
+  id: string;
+  data: {
+    email?: string;
+    name?: string;
+    ubication?: string;
+  };
+};
+type SignupFranchise = {
+  name: string;
+  password: string;
+  email: string;
+  cashiers: Cashier[] | undefined;
+  salesList: Sales[] | undefined;
+  ubication: string;
+};
+type SignupCashier = {
+  name: string;
+  password: string;
+  email: string;
+  franchise: Franchise;
+  franchiseId: undefined;
+};
+type SigninAndSingupFunction = {
+  name: string;
+  password: string;
+  email: string;
+  token: string;
+  cashiers?: Cashier[] | null;
+  salesList?: Sales[] | null;
+  franchise?: Franchise;
+  franchiseId?: string;
+};
+
+type UserType =
+  | PrismaClient["admin"]
+  | PrismaClient["franchise"]
+  | PrismaClient["cashier"];
+
+abstract class Users {
+  constructor(private readonly prismaUser: UserType) {}
+  async encryptPassword({ password }: ComparePass) {
+    const salt = await genSalt(10);
+    return await hash(password, salt);
+  }
+  async comparePassword({ password, receivePassword }: ComparePass) {
+    return await compare(password, receivePassword as string);
+  }
+  protected generateToken({
+    id,
+    email,
+    type,
+  }: {
+    id: string;
+    email: string;
+    type: string;
+  }) {
+    return jwt.sign(
+      { id: id, email: email, type: type },
+      `${process.env.SECRET_KEY_TOKEN}`
+    );
+  }
+  protected abstract populateUser(
+    user: Admin | Cashier | Franchise
+  ): Promise<void>;
+  abstract signup(
+    data: Signup | SignupFranchise | SignupCashier
+  ): Promise<SigninAndSingupFunction | Error>;
+  abstract signin(data: Signin): Promise<SigninAndSingupFunction | Error>;
+  abstract updateUser(
+    data: Update
+  ): Promise<Error | Admin | Cashier | Franchise>;
+  abstract getUser({
+    id,
+    name,
+    email,
+  }: {
+    id?: string;
+    name?: string;
+    email?: string;
+  }): Promise<Admin | Cashier | Franchise | null>;
 }
-exports.default = Users;
+export class Admins extends Users {
+  constructor(private readonly model: PrismaClient["admin"]) {
+    super(model);
+  }
+  protected async populateUser(
+    user: Admin | Cashier | Franchise
+  ): Promise<void> {}
+  async signup(data: Signup) {
+    {
+      try {
+        const { password } = data;
+        const encryptedPassword = await this.encryptPassword({
+          password: password,
+        });
+        data.password = encryptedPassword;
+        const user = await this.model.create({ data });
+        const token = this.generateToken({
+          id: user.id,
+          email: user.email,
+          type: "admin",
+        });
+        return { ...user, token: token };
+      } catch (error) {
+        throw error;
+      }
+    }
+  }
+  async signin(data: Signin) {
+    try {
+      const { email, password } = data;
+      const user = await this.model.findUniqueOrThrow({
+        where: {
+          email: email,
+        },
+      });
+      if (user) {
+        const matchPassword = await this.comparePassword({
+          password: password,
+          receivePassword: user.password,
+        });
+        if (!matchPassword) {
+          return new Error("Password doesn't match");
+        }
+        const token = this.generateToken({
+          id: user.id,
+          email: user.email,
+          type: "admin",
+        });
+        return { ...user, token: token };
+      }
+      return new Error("Can't find user");
+    } catch (error: any) {
+      return error;
+    }
+  }
+  async updateUser(data: Update): Promise<Error | Admin> {
+    try {
+      const { id } = data;
+      const user = await this.model.update({
+        where: {
+          id: id,
+        },
+        data: data.data,
+      });
+      if (!user) return new Error("Can't find user");
+      return { ...user };
+    } catch (error: any) {
+      return error;
+    }
+  }
+  async getUser({
+    id,
+    name,
+    email,
+  }: {
+    id?: string;
+    name?: string;
+    email?: string;
+  }): Promise<Admin | null> {
+    try {
+      const user = await this.model.findUnique({
+        where: {
+          id: id ? id : undefined,
+          name: name ? name : undefined,
+          email: email ? email : undefined,
+        },
+      });
+      if (!user) return null;
+      return user;
+    } catch (error: any) {
+      return error;
+    }
+  }
+}
+
+export class Franchises extends Users {
+  constructor(private readonly model: PrismaClient["franchise"]) {
+    super(model);
+  }
+  protected async populateUser(
+    user: Admin | Cashier | Franchise
+  ): Promise<void> {}
+  async signup(
+    data: SignupFranchise
+  ): Promise<SigninAndSingupFunction | Error> {
+    try {
+      const { password } = data;
+      const encryptedPassword = await this.encryptPassword({
+        password: password,
+      });
+      data.password = encryptedPassword;
+      const user = await this.model.create({ data });
+      const token = this.generateToken({
+        id: user.id,
+        email: user.email,
+        type: "franchise",
+      });
+      return { ...user, token: token };
+    } catch (error) {
+      throw error;
+    }
+  }
+  async signin(data: Signin): Promise<SigninAndSingupFunction | Error> {
+    try {
+      const { email, password } = data;
+      const user = await this.model.findUniqueOrThrow({
+        where: {
+          email: email,
+        },
+      });
+      if (user) {
+        const matchPassword = await this.comparePassword({
+          password: password,
+          receivePassword: user.password,
+        });
+        if (!matchPassword) {
+          return new Error("Password doesn't match");
+        }
+        const token = this.generateToken({
+          id: user.id,
+          email: user.email,
+          type: "franchise",
+        });
+        return { ...user, token: token };
+      }
+      return new Error("Cant found user");
+    } catch (error: any) {
+      return error;
+    }
+  }
+  async updateUser(data: Update): Promise<Error | Franchise> {
+    try {
+      const { id } = data;
+      const user = await this.model.update({
+        where: {
+          id: id,
+        },
+        data: data.data,
+      });
+      if (!user) return new Error("Can't find user");
+      return { ...user };
+    } catch (error: any) {
+      return error;
+    }
+  }
+  async getUser({
+    id,
+    name,
+    email,
+  }: {
+    id?: string;
+    name?: string;
+    email?: string;
+  }): Promise<Franchise | null> {
+    try {
+      const user = await this.model.findUnique({
+        where: {
+          id: id ? id : undefined,
+          name: name ? name : undefined,
+          email: email ? email : undefined,
+        },
+      });
+      if (!user) return null;
+      return user;
+    } catch (error: any) {
+      return error;
+    }
+  }
+}
+
+export class Cashiers extends Users {
+  constructor(private readonly model: PrismaClient["cashier"]) {
+    super(model);
+  }
+  protected async populateUser(
+    user: Admin | Cashier | Franchise
+  ): Promise<void> {}
+
+  async signup(data: SignupCashier): Promise<SigninAndSingupFunction | Error> {
+    try {
+      const { password } = data;
+      const encryptedPassword = await this.encryptPassword({
+        password: password,
+      });
+      data.password = encryptedPassword;
+      const user = await this.model.create({ data });
+      const token = this.generateToken({
+        id: user.id,
+        email: user.email,
+        type: "cashier",
+      });
+      if (!user.franchiseId) {
+        return { ...user, franchiseId: undefined, token: token };
+      }
+      return { ...user, franchiseId: user.franchiseId as string, token: token };
+    } catch (error: any) {
+      return error;
+    }
+  }
+  async signin(data: Signin): Promise<SigninAndSingupFunction | Error> {
+    try {
+      const { email, password } = data;
+      const user = await this.model.findUniqueOrThrow({
+        where: {
+          email: email,
+        },
+      });
+      if (user) {
+        const matchPassword = await this.comparePassword({
+          password: password,
+          receivePassword: user.password,
+        });
+        if (!matchPassword) {
+          return new Error("Password doesn't match");
+        }
+        const token = this.generateToken({
+          id: user.id,
+          email: user.email,
+          type: "cashier",
+        });
+        if (!user.franchiseId) {
+          return { ...user, franchiseId: undefined, token: token };
+        }
+        return {
+          ...user,
+          franchiseId: user.franchiseId as string,
+          token: token,
+        };
+      }
+      return new Error("Cant found user");
+    } catch (error: any) {
+      return error;
+    }
+  }
+  async updateUser(data: Update): Promise<Error | Cashier> {
+    try {
+      const { id } = data;
+      const user = await this.model.update({
+        where: {
+          id: id,
+        },
+        data: data.data,
+      });
+      if (!user) return new Error("Can't find user");
+      return { ...user };
+    } catch (error: any) {
+      return error;
+    }
+  }
+  async getUser({
+    id,
+    name,
+    email,
+  }: {
+    id?: string;
+    name?: string;
+    email?: string;
+  }): Promise<Cashier | null> {
+    try {
+      const user = await this.model.findUnique({
+        where: {
+          id: id ? id : undefined,
+          name: name ? name : undefined,
+          email: email ? email : undefined,
+        },
+      });
+      if (!user) return null;
+      return user;
+    } catch (error: any) {
+      return error;
+    }
+  }
+}
+
+export const cashierModel = new Cashiers(prisma.cashier);
+export const adminModel = new Admins(prisma.admin);
+export const franchiseModel = new Franchises(prisma.franchise);
+*/

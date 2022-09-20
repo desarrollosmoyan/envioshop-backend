@@ -14,17 +14,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getToken = exports.signinHandler = exports.signupHandler = void 0;
 const axios_1 = __importDefault(require("axios"));
-const user_model_1 = __importDefault(require("./user.model"));
-const prisma_1 = __importDefault(require("../../database/prisma"));
 const qs_1 = __importDefault(require("qs"));
+const model_1 = __importDefault(require("./model"));
+const model_2 = require("./model");
 const signupHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { password, name, email } = req.body;
-        const model = new user_model_1.default(prisma_1.default.user);
-        const newUser = yield model.signup({
+        const newUser = yield model_1.default.signup({
             name: name,
             email: email,
             password: password,
+            role: model_2.roleName.admin,
+            ubication: undefined,
         });
         res.status(200).send({
             message: "User created successfully",
@@ -40,8 +41,10 @@ exports.signupHandler = signupHandler;
 const signinHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, password } = req.body;
-        const model = new user_model_1.default(prisma_1.default.user);
-        const isLogged = yield model.signin({ email: email, password: password });
+        const isLogged = yield model_1.default.signin({
+            email: email,
+            password: password,
+        });
         if (isLogged)
             return res
                 .status(200)

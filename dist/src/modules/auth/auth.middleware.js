@@ -8,33 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkExistingRole = exports.checkExistingUser = void 0;
-const prisma_1 = __importDefault(require("../../database/prisma"));
+const utils_1 = require("../../utils/utils");
 const ROLES = ["cashier", "admin", "franchise"];
 const checkExistingUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email } = req.body;
-        const hasUserWithSameName = yield prisma_1.default.user.findUnique({
-            where: {
-                name: name,
-            },
-        });
-        if (hasUserWithSameName) {
-            return res.status(400).send({ message: "Your username already exists" });
-        }
-        const hasUserWithSameEmail = yield prisma_1.default.user.findUnique({
-            where: {
-                email: email,
-            },
-        });
-        if (hasUserWithSameEmail) {
+        const userWithSameNameOrSameEmail = yield (0, utils_1.checkIfUsernameOrEmailAlreadyExists)({ name: name, email: email });
+        if (userWithSameNameOrSameEmail) {
             return res
                 .status(400)
-                .send({ message: "Your email has another account linked" });
+                .send({ message: "Username or Email already exists" });
         }
         next();
     }
@@ -44,9 +29,6 @@ const checkExistingUser = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.checkExistingUser = checkExistingUser;
-/*
-    
-*/
 const checkExistingRole = (req, res, next) => {
     if (!req.body.roles) {
         next();
