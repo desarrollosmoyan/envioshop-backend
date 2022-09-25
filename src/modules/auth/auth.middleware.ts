@@ -9,7 +9,7 @@ export const checkExistingUser = async (
   next: NextFunction
 ) => {
   try {
-    const { name, email } = req.body;
+    /*const { name, email } = req.body;
     const userWithSameNameOrSameEmail =
       await checkIfUsernameOrEmailAlreadyExists({ name: name, email: email });
     if (userWithSameNameOrSameEmail) {
@@ -17,6 +17,8 @@ export const checkExistingUser = async (
         .status(400)
         .send({ message: "Username or Email already exists" });
     }
+    next();
+    */
     next();
   } catch (error: any) {
     console.log(error);

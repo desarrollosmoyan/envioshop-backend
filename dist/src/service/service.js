@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ScrappingService = exports.ApiService = void 0;
+exports.ScrappingService = exports.ApiService = exports.Service = void 0;
 const axios_1 = __importDefault(require("axios"));
 const utils_1 = require("../utils/utils");
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const qs_1 = __importDefault(require("qs"));
+const perf_hooks_1 = require("perf_hooks");
 class Service {
     constructor(serviceData) {
         const { baseUrl, headers, serviceName } = serviceData;
@@ -34,6 +35,7 @@ class Service {
         return this.headers;
     }
 }
+exports.Service = Service;
 class ApiService extends Service {
     constructor(serviceData) {
         super(serviceData);
@@ -94,19 +96,21 @@ class ApiService extends Service {
     }
     getRating(ratingBody) {
         return __awaiter(this, void 0, void 0, function* () {
+            const startTime = perf_hooks_1.performance.now();
             if (!this.subServices) {
                 return new Error("This service doesn't have subServices");
             }
             const ratingInfo = this.subServices.rating;
             const body = (0, utils_1.formatRatingBody)(ratingBody, this.serviceName.toLowerCase());
             try {
-                yield this.setAuthorization();
                 const { data } = yield (0, axios_1.default)({
                     method: ratingInfo.method,
                     url: `${this.baseUrl}${ratingInfo.url}`,
                     headers: this.getHeaders(),
                     data: body,
                 });
+                const endtime = perf_hooks_1.performance.now();
+                console.log(`${this.serviceName} elapsedTime:${endtime - startTime}`);
                 return data;
             }
             catch (error) {
@@ -153,20 +157,20 @@ class ApiService extends Service {
             const isPost = shippingInfo.method === "POST";
             let body;
             if (isPost) {
-                body = (0, utils_1.formatShippingBody)(data);
+                body = (0, utils_1.formatShippingBody)(data, this.serviceName);
             }
             try {
                 const { data } = yield (0, axios_1.default)({
                     method: shippingInfo.method,
-                    url: shippingInfo.url,
+                    url: `${this.baseUrl}${shippingInfo.url}`,
                     data: body,
+                    headers: this.getHeaders(),
                 });
                 return data;
             }
             catch (error) {
                 throw error;
             }
-            return new Promise((data) => data);
         });
     }
 }
@@ -183,7 +187,6 @@ class ScrappingService extends Service {
             });
             this.page = yield this.browser.newPage();
             yield this.page.goto(this.baseUrl);
-            console.log(this.baseUrl);
         });
     }
     setSubServices(subServices) {
@@ -196,22 +199,32 @@ class ScrappingService extends Service {
     }
     getRating(ratingBody) {
         return __awaiter(this, void 0, void 0, function* () {
+            const startTime = perf_hooks_1.performance.now();
             if (this.page && this.subServices)
                 try {
                     let prices = [
                         {
                             serviceName: "Dia Siguiente",
-                            price: 0,
+                            prices: {
+                                total: 0,
+                                subTotal: 0,
+                            },
                             company: "ESTAFETA",
                         },
                         {
                             serviceName: "2 Dias",
-                            price: 0,
+                            prices: {
+                                total: 0,
+                                subTotal: 0,
+                            },
                             company: "ESTAFETA",
                         },
                         {
                             serviceName: "Terrestre",
-                            price: 0,
+                            prices: {
+                                total: 0,
+                                subTotal: 0,
+                            },
                             company: "ESTAFETA",
                         },
                     ];
@@ -229,10 +242,14 @@ class ScrappingService extends Service {
                     yield this.page.waitForSelector("#wrapResultados");
                     prices = yield Promise.all(prices.map((price, i) => __awaiter(this, void 0, void 0, function* () {
                         let selector = `div#cost_total_${i}`;
-                        if (this.page)
-                            price.price = yield this.page.$eval(selector.toString(), (element) => element.textContent);
-                        return price;
+                        if (this.page) {
+                            price.prices.total = yield this.page.$eval(selector.toString(), (element) => element.textContent);
+                            price.prices.subTotal = yield this.page.$eval(`table tbody tr:nth-child(4) td:nth-child(${i + 3})`, (element) => element.textContent);
+                            return price;
+                        }
                     })));
+                    const endTime = perf_hooks_1.performance.now();
+                    console.log(`${this.serviceName} elapsedTime:${endTime - startTime}`);
                     return prices;
                 }
                 catch (error) {

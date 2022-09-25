@@ -131,3 +131,55 @@ export const ESTAFETA = {
     },
   },
 };
+
+export const PAQUETEEXPRESS = {
+  baseUrl: "https://www.paquetexpress.com.mx/servicios",
+  serviceName: "PAQUETEEXPRESS",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  subServices: {
+    rating: {
+      url: "",
+      method: "",
+    },
+    tracking: {
+      url: "",
+      method: "",
+    },
+    picking: {
+      url: "",
+      method: "",
+    },
+    shipping: {
+      url: "",
+      method: "",
+    },
+  },
+};
+
+export const PAQUETEEXPRESSSERVICE = {
+  baseUrl: "https://cc.paquetexpress.com.mx",
+  serviceName: "PAQUETEEXPRESS",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  subServices: {
+    rating: {
+      url: "/WsQuotePaquetexpress/api/apiQuoter/v2/getQuotation?source=WEBPAGE",
+      method: "POST",
+    },
+    tracking: {
+      url: "",
+      method: "",
+    },
+    picking: {
+      url: "",
+      method: "",
+    },
+    shipping: {
+      url: "",
+      method: "",
+    },
+  },
+};

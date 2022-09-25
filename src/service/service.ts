@@ -6,8 +6,8 @@ import {
 } from "../utils/utils";
 import puppeter, { Browser, Page } from "puppeteer-core";
 import qs from "qs";
-
-abstract class Service {
+import { performance } from "perf_hooks";
+export abstract class Service {
   public baseUrl: string;
   public serviceName: string;
   public subServices?: subService;
@@ -88,19 +88,21 @@ export class ApiService extends Service {
     }
   }
   async getRating(ratingBody: Rating): Promise<void | Error> {
+    const startTime = performance.now();
     if (!this.subServices) {
       return new Error("This service doesn't have subServices");
     }
     const ratingInfo = this.subServices.rating;
     const body = formatRatingBody(ratingBody, this.serviceName.toLowerCase());
     try {
-      await this.setAuthorization();
       const { data } = await axios({
         method: ratingInfo.method as string,
         url: `${this.baseUrl}${ratingInfo.url as string}`,
         headers: this.getHeaders(),
         data: body,
       });
+      const endtime = performance.now();
+      console.log(`${this.serviceName} elapsedTime:${endtime - startTime}`);
       return data;
     } catch (error: any) {
       return error;
@@ -139,19 +141,20 @@ export class ApiService extends Service {
     const isPost = shippingInfo.method === "POST";
     let body;
     if (isPost) {
-      body = formatShippingBody(data);
+      body = formatShippingBody(data, this.serviceName);
     }
     try {
       const { data } = await axios({
         method: shippingInfo.method as string,
-        url: shippingInfo.url as string,
+        url: `${this.baseUrl}${shippingInfo.url as string}`,
         data: body,
+        headers: this.getHeaders(),
       });
+
       return data;
     } catch (error) {
       throw error;
     }
-    return new Promise((data) => data);
   }
 }
 
@@ -168,7 +171,6 @@ export class ScrappingService extends Service {
     });
     this.page = await this.browser.newPage();
     await this.page.goto(this.baseUrl);
-    console.log(this.baseUrl);
   }
   setSubServices(subServices: any): void {
     this.subServices = subServices;
@@ -177,22 +179,32 @@ export class ScrappingService extends Service {
     return new Error("This service doesn't require authorization");
   }
   async getRating(ratingBody: Rating): Promise<void> {
+    const startTime = performance.now();
     if (this.page && this.subServices)
       try {
         let prices: any = [
           {
             serviceName: "Dia Siguiente",
-            price: 0,
+            prices: {
+              total: 0,
+              subTotal: 0,
+            },
             company: "ESTAFETA",
           },
           {
             serviceName: "2 Dias",
-            price: 0,
+            prices: {
+              total: 0,
+              subTotal: 0,
+            },
             company: "ESTAFETA",
           },
           {
             serviceName: "Terrestre",
-            price: 0,
+            prices: {
+              total: 0,
+              subTotal: 0,
+            },
             company: "ESTAFETA",
           },
         ];
@@ -232,14 +244,21 @@ export class ScrappingService extends Service {
         prices = await Promise.all(
           prices.map(async (price: any, i: number) => {
             let selector = `div#cost_total_${i}`;
-            if (this.page)
-              price.price = await this.page.$eval(
+            if (this.page) {
+              price.prices.total = await this.page.$eval(
                 selector.toString(),
                 (element) => element.textContent
               );
-            return price;
+              price.prices.subTotal = await this.page.$eval(
+                `table tbody tr:nth-child(4) td:nth-child(${i + 3})`,
+                (element) => element.textContent
+              );
+              return price;
+            }
           })
         );
+        const endTime = performance.now();
+        console.log(`${this.serviceName} elapsedTime:${endTime - startTime}`);
         return prices;
       } catch (error: any) {
         return error;

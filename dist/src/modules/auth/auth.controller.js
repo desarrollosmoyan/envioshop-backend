@@ -15,22 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getToken = exports.signinHandler = exports.signupHandler = void 0;
 const axios_1 = __importDefault(require("axios"));
 const qs_1 = __importDefault(require("qs"));
-const model_1 = __importDefault(require("./model"));
-const model_2 = require("./model");
+const utils_1 = require("../../utils/utils");
 const signupHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { password, name, email } = req.body;
-        const newUser = yield model_1.default.signup({
-            name: name,
-            email: email,
-            password: password,
-            role: model_2.roleName.admin,
-            ubication: undefined,
-        });
-        res.status(200).send({
-            message: "User created successfully",
-            user: Object.assign({}, newUser),
-        });
+        const { data, type, } = req.body;
+        const newUser = yield (0, utils_1.createUserByType)(data, type);
+        if (!newUser)
+            return res.status(401).json({ message: "" });
+        res.status(200).send(Object.assign({ message: "User created successfully" }, newUser));
     }
     catch (error) {
         console.log(error);
@@ -40,16 +32,16 @@ const signupHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.signupHandler = signupHandler;
 const signinHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email, password } = req.body;
-        const isLogged = yield model_1.default.signin({
+        const { email, password, type } = req.body;
+        const isLogged = yield (0, utils_1.loginUserByType)({
             email: email,
             password: password,
         });
-        if (isLogged)
+        if (!isLogged)
             return res
-                .status(200)
-                .send({ message: "User logged successfully", user: isLogged });
-        return res.status(400).send({ message: "User credentials are incorrect" });
+                .status(400)
+                .send({ message: "User credentials are incorrect" });
+        res.status(200).json(Object.assign({ message: "User logged successfully" }, isLogged));
     }
     catch (error) {
         res.status(400).send({ message: error.message });

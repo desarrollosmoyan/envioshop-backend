@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.redisConnection = exports.ESTAFETAService = exports.REDPACKService = exports.UPSService = exports.DHLService = exports.FEDEXService = void 0;
+exports.redisConnection = exports.PAQUETEEXPRESSService = exports.ESTAFETAService = exports.REDPACKService = exports.UPSService = exports.DHLService = exports.FEDEXService = void 0;
 require("dotenv").config();
 const constants_1 = require("./src/constants");
 const redis_1 = require("./src/server/redis");
@@ -23,6 +23,8 @@ exports.DHLService = new service_1.ApiService(constants_1.DHL);
 exports.UPSService = new service_1.ApiService(constants_1.UPS);
 exports.REDPACKService = new service_1.ApiService(constants_1.REDPACK);
 exports.ESTAFETAService = new service_1.ScrappingService(constants_1.ESTAFETA);
+exports.PAQUETEEXPRESSService = new service_1.ApiService(constants_1.PAQUETEEXPRESSSERVICE);
+//export const PAQUETEEXPRESSService = new ApiService(PAQUETEEXPRESS);
 exports.redisConnection = (0, redis_1.connectRedis)();
 (0, redis_1.connectRedis)().then((redis) => __awaiter(void 0, void 0, void 0, function* () {
     yield exports.FEDEXService.setAuthorization();

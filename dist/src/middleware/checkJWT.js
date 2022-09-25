@@ -14,15 +14,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkJWT = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const model_1 = __importDefault(require("../modules/auth/model"));
+const admin_model_1 = __importDefault(require("../database/models/admin.model"));
+const cashier_model_1 = __importDefault(require("../database/models/cashier.model"));
+const franchise_model_1 = __importDefault(require("../database/models/franchise.model"));
 const allowedRoles = {
     admin: true,
     cashier: true,
     franchise: false,
 };
+const models = {
+    admin: admin_model_1.default,
+    cashier: cashier_model_1.default,
+    franchise: franchise_model_1.default,
+};
 const checkJWT = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.replace("Bearer ", "");
+    if (!req.headers.authorization)
+        return res.status(401).send({ message: "Non token found" });
+    const token = req.headers.authorization.replace("Bearer ", "");
+    console.log(token);
     if (!token) {
         return res.status(401).send({ message: "Non token found" });
     }
@@ -36,12 +45,11 @@ const checkJWT = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         }
         return res.status(400).send({ message: "Error" });
     }
-    const user = yield model_1.default.getUser({ id: payload.id });
-    //const roleName = await roleModel.getRole({user.roleId});
-    const roleName = "admin";
-    console.log("el pepe");
+    const roleName = payload.type;
     if (allowedRoles[roleName]) {
         next();
+        return;
     }
+    return res.status(403).json({ message: "Unauthorized" });
 });
 exports.checkJWT = checkJWT;

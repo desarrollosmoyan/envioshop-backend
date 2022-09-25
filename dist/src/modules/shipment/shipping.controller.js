@@ -13,9 +13,7 @@ exports.createShipment = void 0;
 const __1 = require("../../..");
 const createShipment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("Xd");
         const { company } = req.params;
-        console.log(company);
         if (!company)
             return res.status(401).json({ message: "Bad request" });
         const services = {
@@ -25,14 +23,14 @@ const createShipment = (req, res) => __awaiter(void 0, void 0, void 0, function*
             UPS: __1.UPSService,
         };
         const shippingService = services[company];
-        console.log(req.body);
+        console.log(shippingService);
         const data = yield shippingService.createShipping(req.body);
-        console.log(data);
         if (data)
             return res.status(200).json({ shipment: data });
     }
     catch (error) {
         console.log(error);
+        res.status(404).send(error);
     }
 });
 exports.createShipment = createShipment;

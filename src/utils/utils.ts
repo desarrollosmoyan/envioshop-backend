@@ -1,9 +1,19 @@
 import axios from "axios";
 import { JwtPayload } from "jsonwebtoken";
 import { createClient } from "redis";
+import adminModel from "../database/models/admin.model";
+import cashierModel from "../database/models/cashier.model";
+import franchiseModel from "../database/models/franchise.model";
 import prisma from "../database/prisma";
 import userModel from "../modules/auth/model";
+import { compare, genSalt, hash } from "bcrypt";
+import jwt from "jsonwebtoken";
 
+const models = {
+  admin: adminModel,
+  franchise: franchiseModel,
+  cashier: cashierModel,
+};
 export const formatRatingBody = (body: Rating, schema: string) => {
   const fedexSchema = {
     accountNumber: {
@@ -25,12 +35,18 @@ export const formatRatingBody = (body: Rating, schema: string) => {
       pickupType: "DROPOFF_AT_FEDEX_LOCATION",
       serviceType: "FEDEX_EXPRESS_SAVER",
       packagingType: "YOUR_PACKAGING",
-      rateRequestType: ["LIST", "ACCOUNT"],
+      rateRequestType: ["LIST"],
       requestedPackageLineItems: [
         {
           weight: {
             units: "KG",
             value: body.packageSize.weight,
+          },
+          dimensions: {
+            length: body.packageSize.length,
+            width: body.packageSize.width,
+            height: body.packageSize.height,
+            units: "CM",
           },
         },
       ],
@@ -178,11 +194,79 @@ export const formatRatingBody = (body: Rating, schema: string) => {
     },
   ];
 
+  const paqueteExpressSceham = {
+    header: {
+      security: {
+        user: "",
+        password: "",
+        type: 2,
+        token: "325746796331582000000",
+      },
+      device: {
+        appName: "RAD",
+        type: "Web",
+        ip: "",
+        idDevice: "",
+      },
+      target: {
+        module: "RAD",
+        version: "v1.0",
+        service: "rad",
+        uri: "rads",
+        event: "CRUD",
+      },
+      output: "JSON",
+      language: "ESP",
+    },
+    body: {
+      request: {
+        data: {
+          clientId: "",
+          clientDest: "",
+          pymtMode: "",
+          clientAddrOrig: {
+            colonyName: "",
+            zipCode: body.originPostalCode,
+            branch: "",
+            zone: "",
+          },
+          clientAddrDest: {
+            colonyName: "",
+            zipCode: body.destinyPostalCode,
+            branch: "",
+            zone: "",
+          },
+          shipmentDetail: {
+            shipments: [
+              {
+                sequence: 0,
+                weight: body.packageSize.weight,
+                longShip: body.packageSize.length,
+                widthShip: body.packageSize.width,
+                highShip: body.packageSize.height,
+                shpCode: "2",
+                quantity: 1,
+                srvcId: "SHP-G",
+                srvcRefId: "PACKETS",
+              },
+            ],
+          },
+          otherServices: {
+            otherServices: [],
+          },
+          quoteServices: ["ALL"],
+          dateTime: "2022-09-23 11:22:17",
+        },
+      },
+    },
+  };
+
   const schemas: any = {
     fedex: fedexSchema,
     dhl: dhlSchema,
     ups: upsSchema,
     redpack: redpackSchema,
+    paqueteexpress: paqueteExpressSceham,
   };
   return schemas[schema as keyof any];
 };
@@ -224,7 +308,7 @@ export const formatTrackingBody = (trackingNumber: number) => {
   return fedexFormat;
 };
 
-export const formatShippingBody = (data: any) => {
+export const formatShippingBody = (data: any, serviceName: string) => {
   const {
     receiverFullName,
     receiverCompanyName,
@@ -250,10 +334,9 @@ export const formatShippingBody = (data: any) => {
     shipperCounty,
     packageSize,
   } = data;
-  console.log(packageSize);
   const dhlSchema = {
     productCode: "N",
-    plannedShippingDateAndTime: "2022-12-21T10:43:06 GMT-06:00",
+    plannedShippingDateAndTime: "2022-09-25T10:43:06 GMT-06:00",
     pickup: {
       isRequested: false,
     },
@@ -289,7 +372,7 @@ export const formatShippingBody = (data: any) => {
         contactInformation: {
           phone: shipperCellphone,
           companyName: shipperCompanyName,
-          fullName: shipperFullName,
+          fullName: "Brayan Cardozo",
         },
       },
       receiverDetails: {
@@ -303,7 +386,7 @@ export const formatShippingBody = (data: any) => {
         contactInformation: {
           phone: receiverCellphone,
           companyName: receiverCompanyName,
-          fullName: receiverFullName,
+          fullName: "Arturo Artaza",
           email: receiverEmail,
         },
       },
@@ -332,6 +415,70 @@ export const formatShippingBody = (data: any) => {
       declaredValueCurrency: "MXN",
     },
   };
+  const fedexSchema = {
+    requestedShipment: {
+      pickupType: "USE_SCHEDULED_PICKUP",
+      serviceType: "STANDARD_OVERNIGHT",
+      packagingType: "YOUR_PACKAGING",
+      totalWeight: packageSize.weight,
+      shipper: {
+        address: {
+          streetLines: [shipperAddress],
+          city: shipperCity,
+          stateOrProvinceCode: shipperCounty,
+          postalCode: shipperPostalCode,
+          countryCode: "MX",
+        },
+        contact: {
+          personName: shipperFullName,
+          emailAddress: shipperEmail,
+          phoneExtension: "52",
+          phoneNumber: shipperCellphone,
+          companyName: "ENVIOSHOP",
+        },
+      },
+      recipients: [
+        {
+          address: {
+            streetLines: [receiverAddress],
+            city: receiverCity,
+            stateOrProvinceCode: receiverCounty,
+            postalCode: receiverPostalCode,
+            countryCode: "MX",
+          },
+          contact: {
+            personName: "Brayan",
+            emailAddress: "sample@company.com",
+            phoneExtension: "52",
+            phoneNumber: receiverCellphone,
+            companyName: "ENVIOSHOP",
+          },
+        },
+      ],
+      requestedPackageLineItems: [
+        {
+          weight: {
+            units: "KG",
+            value: packageSize.weight,
+          },
+          dimensions: {
+            length: packageSize.length,
+            width: packageSize.width,
+            height: packageSize.height,
+            units: "CM",
+          },
+          itemDescriptionForClearance: "description",
+        },
+      ],
+    },
+    accountNumber: {
+      value: "781802379",
+    },
+    openShipmentAction: "CREATE_PACKAGE",
+    index: "Test1234",
+  };
+  if (serviceName === "FEDEX") return fedexSchema;
+  if (serviceName === "DHL") return dhlSchema;
   return dhlSchema;
 };
 
@@ -339,22 +486,29 @@ const iterateAndLevel = ({
   output,
   products,
   RateResponse,
+  body,
 }: {
   output?: any;
   products?: any;
   RateResponse?: any;
+  body?: any;
 }) => {
+  console.log(body);
   if (output) {
     const arr = output.rateReplyDetails;
     return arr.map((service: any) => {
       let price = service.ratedShipmentDetails.map((item: any) => {
         return {
-          type: item.rateType,
-          prices: item.totalNetFedExCharge,
+          subTotal: item.totalNetFedExCharge,
+          total: item.totalNetCharge,
         };
       });
       let serviceName = service.serviceName;
-      return { serviceName: serviceName, price: price, company: "FEDEX" };
+      return {
+        serviceName: serviceName,
+        prices: { ...price },
+        company: "FEDEX",
+      };
     });
   }
   if (products) {
@@ -364,17 +518,42 @@ const iterateAndLevel = ({
         item.currencyType.includes("PULCL")
       );
       let serviceName = service.productName;
-      return { serviceName: serviceName, price: price.price, company: "DHL" };
+      return {
+        serviceName: serviceName,
+        prices: {
+          total: (price.price + 44.67).toFixed(2),
+          subTotal: price.price,
+        },
+        company: "DHL",
+      };
     });
   }
   if (RateResponse) {
     const ratedShipment = RateResponse["RatedShipment"];
     const totalPrice = ratedShipment["TotalCharges"];
+    const subTotal = ratedShipment["BaseServiceCharge"];
     return {
       serviceName: "UPS GROUND",
-      price: totalPrice["MonetaryValue"],
+      prices: {
+        total: totalPrice["MonetaryValue"],
+        subTotal: subTotal["MonetaryValue"],
+      },
       company: "UPS",
     };
+  }
+  if (body) {
+    const data = body.response.data.quotations;
+    const arr = data.map((service: any) => {
+      return {
+        serviceName: service.serviceName,
+        prices: {
+          total: service.amount.totalAmnt,
+          subTotal: service.amount.subTotlAmnt,
+        },
+        company: "PAQUETE EXPRESS",
+      };
+    });
+    return arr;
   }
 };
 
@@ -420,4 +599,86 @@ export const checkIfUsernameOrEmailAlreadyExists = async (userData: {
   } catch (error) {
     throw error;
   }
+};
+
+export const createUserByType = async (data: any, type: string) => {
+  try {
+    //const password = await encryptPassword(data.password);
+    //data.password = password;
+    let user;
+    switch (type) {
+      case "admin":
+        user = await adminModel.create(data);
+        break;
+      case "franchise":
+        user = await franchiseModel.create(data, true);
+        break;
+      case "cashier":
+        user = await cashierModel.create(data, true);
+        break;
+    }
+    if (!user) return null;
+    //const token = await generateToken(user.id, user.email, user.password, type);
+    return { ...user };
+  } catch (error) {
+    return error;
+  }
+};
+export const loginUserByType = async (data: {
+  email: string;
+  password: string;
+}) => {
+  const { password, email } = data;
+  const type = await whichUserTypeIsIt(email);
+  console.log(type);
+  console.log(password);
+  if (type === "none") throw new Error("User not created");
+  const user = await models[type as keyof typeof models].get({
+    email: data.email,
+  });
+  if (!user) return null;
+  const hash = user.password;
+  console.log(user);
+  const hasPasswordMatched = await verifyPassword(password, hash);
+  if (!hasPasswordMatched) throw new Error("Password incorrect");
+  const token = await generateToken(
+    user.id,
+    user.email,
+    user.password,
+    user.type
+  );
+  return { user, token: token };
+};
+
+export const whichUserTypeIsIt = async (email: string) => {
+  const isAdmin = await adminModel.get({ email: email });
+  if (isAdmin) return "admin";
+  const isCashier = await cashierModel.get({ email: email });
+  if (isCashier) return "cashier";
+  const isFranchise = await franchiseModel.get({ email: email });
+  if (isFranchise) return "franchise";
+  return "none";
+};
+export const encryptPassword = async (password: string) => {
+  //const salt = await genSalt(10);
+  return await hash(password, 10);
+};
+
+export const verifyPassword = async (
+  password: string,
+  receivePassword: string
+) => {
+  return await compare(password, receivePassword);
+};
+
+export const generateToken = async (
+  id: string,
+  email: string,
+  password: string,
+  type: string
+) => {
+  return jwt.sign(
+    { id: id, email: email, password: password, type: type },
+    `${process.env.SECRET_KEY_TOKEN}`
+  );
 };

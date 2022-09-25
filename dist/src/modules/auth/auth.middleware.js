@@ -10,17 +10,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkExistingRole = exports.checkExistingUser = void 0;
-const utils_1 = require("../../utils/utils");
 const ROLES = ["cashier", "admin", "franchise"];
 const checkExistingUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, email } = req.body;
-        const userWithSameNameOrSameEmail = yield (0, utils_1.checkIfUsernameOrEmailAlreadyExists)({ name: name, email: email });
+        /*const { name, email } = req.body;
+        const userWithSameNameOrSameEmail =
+          await checkIfUsernameOrEmailAlreadyExists({ name: name, email: email });
         if (userWithSameNameOrSameEmail) {
-            return res
-                .status(400)
-                .send({ message: "Username or Email already exists" });
+          return res
+            .status(400)
+            .send({ message: "Username or Email already exists" });
         }
+        next();
+        */
         next();
     }
     catch (error) {

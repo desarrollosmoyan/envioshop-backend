@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { Jwt, JwtPayload } from "jsonwebtoken";
+import adminModel from "../database/models/admin.model";
+import cashierModel from "../database/models/cashier.model";
+import franchiseModel from "../database/models/franchise.model";
 import prisma from "../database/prisma";
 import userModel from "../modules/auth/model";
 import { selectUserByRoleAndReturn } from "../utils/utils";
@@ -9,12 +12,21 @@ const allowedRoles = {
   cashier: true,
   franchise: false,
 };
+
+const models = {
+  admin: adminModel,
+  cashier: cashierModel,
+  franchise: franchiseModel,
+};
 export const checkJWT = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.headers.authorization?.replace("Bearer ", "");
+  if (!req.headers.authorization)
+    return res.status(401).send({ message: "Non token found" });
+  const token = req.headers.authorization.replace("Bearer ", "");
+  console.log(token);
   if (!token) {
     return res.status(401).send({ message: "Non token found" });
   }
@@ -27,11 +39,10 @@ export const checkJWT = async (
     }
     return res.status(400).send({ message: "Error" });
   }
-  const user = await userModel.getUser({ id: (payload as JwtPayload).id });
-  //const roleName = await roleModel.getRole({user.roleId});
-  const roleName = "admin";
-  console.log("el pepe");
+  const roleName = (payload as JwtPayload).type;
   if (allowedRoles[roleName as keyof typeof allowedRoles]) {
     next();
+    return;
   }
+  return res.status(403).json({ message: "Unauthorized" });
 };

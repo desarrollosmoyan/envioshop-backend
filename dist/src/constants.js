@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ESTAFETA = exports.REDPACK = exports.UPS = exports.DHL = exports.FEDEX = void 0;
+exports.PAQUETEEXPRESSSERVICE = exports.PAQUETEEXPRESS = exports.ESTAFETA = exports.REDPACK = exports.UPS = exports.DHL = exports.FEDEX = void 0;
 exports.FEDEX = {
     baseUrl: "https://apis.fedex.com",
     serviceName: "FEDEX",
@@ -116,6 +116,56 @@ exports.ESTAFETA = {
         },
         tracking: {
             url: "/Herramientas/Rastreo",
+            method: "",
+        },
+        picking: {
+            url: "",
+            method: "",
+        },
+        shipping: {
+            url: "",
+            method: "",
+        },
+    },
+};
+exports.PAQUETEEXPRESS = {
+    baseUrl: "https://www.paquetexpress.com.mx/servicios",
+    serviceName: "PAQUETEEXPRESS",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    subServices: {
+        rating: {
+            url: "",
+            method: "",
+        },
+        tracking: {
+            url: "",
+            method: "",
+        },
+        picking: {
+            url: "",
+            method: "",
+        },
+        shipping: {
+            url: "",
+            method: "",
+        },
+    },
+};
+exports.PAQUETEEXPRESSSERVICE = {
+    baseUrl: "https://cc.paquetexpress.com.mx",
+    serviceName: "PAQUETEEXPRESS",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    subServices: {
+        rating: {
+            url: "/WsQuotePaquetexpress/api/apiQuoter/v2/getQuotation?source=WEBPAGE",
+            method: "POST",
+        },
+        tracking: {
+            url: "",
             method: "",
         },
         picking: {

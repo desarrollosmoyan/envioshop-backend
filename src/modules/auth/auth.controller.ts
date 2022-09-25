@@ -1,24 +1,22 @@
 import { Request, Response } from "express";
 import axios from "axios";
-import prisma from "../../database/prisma";
 import qs from "qs";
-import userModel from "./model";
-import { roleName } from "./model";
+import { createUserByType, loginUserByType } from "../../utils/utils";
+import { CashierData } from "../../database/models/cashier.model";
+import { AdminData } from "../../database/models/admin.model";
+import { FranchiseData } from "../../database/models/franchise.model";
 export const signupHandler = async (req: Request, res: Response) => {
   try {
-    const { password, name, email } = req.body;
-    const newUser = await userModel.signup({
-      name: name as string,
-      email: email as string,
-      password: password as string,
-      role: roleName.admin,
-      ubication: undefined,
-    });
+    const {
+      data,
+      type,
+    }: { data: CashierData | AdminData | FranchiseData; type: string } =
+      req.body;
+    const newUser = await createUserByType(data, type);
+    if (!newUser) return res.status(401).json({ message: "" });
     res.status(200).send({
       message: "User created successfully",
-      user: {
-        ...newUser,
-      },
+      ...newUser,
     });
   } catch (error: any) {
     console.log(error);
@@ -28,16 +26,16 @@ export const signupHandler = async (req: Request, res: Response) => {
 
 export const signinHandler = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-    const isLogged = await userModel.signin({
+    const { email, password, type } = req.body;
+    const isLogged = await loginUserByType({
       email: email,
       password: password,
     });
-    if (isLogged)
+    if (!isLogged)
       return res
-        .status(200)
-        .send({ message: "User logged successfully", user: isLogged });
-    return res.status(400).send({ message: "User credentials are incorrect" });
+        .status(400)
+        .send({ message: "User credentials are incorrect" });
+    res.status(200).json({ message: "User logged successfully", ...isLogged });
   } catch (error: any) {
     res.status(400).send({ message: error.message });
   }

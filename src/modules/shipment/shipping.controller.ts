@@ -10,9 +10,7 @@ type Services = {
 };
 export const createShipment = async (req: Request, res: Response) => {
   try {
-    console.log("Xd");
     const { company } = req.params;
-    console.log(company);
     if (!company) return res.status(401).json({ message: "Bad request" });
     const services: Services = {
       FEDEX: FEDEXService,
@@ -21,11 +19,11 @@ export const createShipment = async (req: Request, res: Response) => {
       UPS: UPSService,
     };
     const shippingService = services[company as keyof Services];
-    console.log(req.body);
+    console.log(shippingService);
     const data = await shippingService.createShipping(req.body);
-    console.log(data);
     if (data) return res.status(200).json({ shipment: data });
   } catch (error: any) {
     console.log(error);
+    res.status(404).send(error);
   }
 };

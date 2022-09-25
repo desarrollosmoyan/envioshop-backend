@@ -6,18 +6,26 @@ import {
   UPSService,
   ESTAFETAService,
   redisConnection,
+  PAQUETEEXPRESSService,
 } from "../../..";
 import { formatRatingResponse } from "../../utils/utils";
 
 export const getRating = async (req: Request, res: Response) => {
   try {
-    const DHLRating = await DHLService.getRating(req.body);
-    const FEDEXRating = await FEDEXService.getRating(req.body);
-    const UPSRating = await UPSService.getRating(req.body);
-    const REDPACKRating = await REDPACKService.getRating(req.body);
-    const ESTAFETARating = await ESTAFETAService.getRating(req.body);
-    const p = await (await redisConnection).get("FEDEXTOKEN");
-    const dataToFormat = [DHLRating, UPSRating, FEDEXRating];
+    const DHLRating = DHLService.getRating(req.body);
+    const FEDEXRating = FEDEXService.getRating(req.body);
+    const UPSRating = UPSService.getRating(req.body);
+    const REDPACKRating = REDPACKService.getRating(req.body);
+    const ESTAFETARating = ESTAFETAService.getRating(req.body);
+    const PAQUETEEXPRESSRating = PAQUETEEXPRESSService.getRating(req.body);
+    const arrOfPromises = await Promise.all([
+      DHLRating,
+      UPSRating,
+      FEDEXRating,
+      PAQUETEEXPRESSRating,
+    ]);
+    //const p = await (await redisConnection).get("FEDEXTOKEN");
+    const dataToFormat = [...arrOfPromises];
     const dataFormated = [
       ...formatRatingResponse(dataToFormat),
       ESTAFETARating,
