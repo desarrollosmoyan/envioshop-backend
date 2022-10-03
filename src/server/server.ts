@@ -23,25 +23,15 @@ server.use("/test", async (req: Request, res: Response) => {
   try {
     const params = new URLSearchParams();
     params.append("client_secret", "R3dPack&2020");
-    params.append("client_id", `${process.env.CLIENT_ID_REDPACK}`);
-    params.append("grant_type", "password");
+    params.append("client_id", "app-redpack-web");
+    //params.append("grant_type", "password");
     params.append("username", "FENVIOSHOP");
     params.append("password", "Envioshop.22");
-    /*const body = querystring.stringify({
-      client_secret: "R3dPack&2020",
-      client_id: `${process.env.CLIENT_ID_REDPACK}`,
-      grant_type: "password",
-      username: "FENVIOSHOP",
-      password: "Envioshop.22",
-    });*/
     const { data } = await axios({
       method: "POST",
       url: "https://api.redpack.com.mx/oauth/token",
       headers: {
         "Content-type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${Buffer.from(`FENVIOSHOP:Envioshop.22`).toString(
-          "base64"
-        )}`,
       },
       data: params,
     });

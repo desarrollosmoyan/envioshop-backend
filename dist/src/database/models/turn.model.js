@@ -21,13 +21,13 @@ class Turn {
     create(turnData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { startDate, endDate, openBalance, user, userId } = turnData;
+                const { startDate, endDate, openBalance, cashierId } = turnData;
                 const newTurn = yield this.turn.create({
                     data: {
                         startDate: startDate,
                         endDate: endDate,
                         openBalance: openBalance,
-                        userId: !userId ? "" : userId,
+                        cashierId: !cashierId ? "" : cashierId,
                     },
                 });
                 if (!newTurn)

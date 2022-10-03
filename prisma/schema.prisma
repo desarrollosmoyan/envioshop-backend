@@ -60,7 +60,7 @@ model Turn {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   openBalance  Float
   closeBalance Float?
-  startTime    DateTime
+  startDate    DateTime
   endDate      DateTime?
   sales        Sales[]
   cashier      Cashier   @relation(fields: [cashierId], references: [id])

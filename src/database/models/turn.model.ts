@@ -1,4 +1,4 @@
-import { PrismaClient, Sales, User } from "@prisma/client";
+import { Cashier, PrismaClient, Sales } from "@prisma/client";
 import userModel from "../../modules/auth/model";
 import prisma from "../prisma";
 
@@ -7,8 +7,8 @@ type TurnData = {
   endDate: null;
   openBalance: number;
   sales: Sales[];
-  userId?: string;
-  user?: User;
+  cashierId?: string;
+  cashier?: Cashier;
 };
 
 type TurnEndData = {
@@ -20,13 +20,13 @@ class Turn {
   constructor(private readonly turn: PrismaClient["turn"]) {}
   async create(turnData: TurnData): Promise<void | Error> {
     try {
-      const { startDate, endDate, openBalance, user, userId } = turnData;
+      const { startDate, endDate, openBalance, cashierId } = turnData;
       const newTurn = await this.turn.create({
         data: {
           startDate: startDate,
           endDate: endDate,
           openBalance: openBalance,
-          userId: !userId ? "" : userId,
+          cashierId: !cashierId ? "" : cashierId,
         },
       });
       if (!newTurn) throw Error("Can't create turn");
