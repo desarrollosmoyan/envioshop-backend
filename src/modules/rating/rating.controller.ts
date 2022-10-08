@@ -5,7 +5,7 @@ import {
   REDPACKService,
   UPSService,
   ESTAFETAService,
-  redisConnection,
+  //redisConnection,
   PAQUETEEXPRESSService,
 } from "../../..";
 import { formatRatingResponse } from "../../utils/utils";
@@ -23,6 +23,8 @@ export const getRating = async (req: Request, res: Response) => {
       UPSRating,
       FEDEXRating,
       PAQUETEEXPRESSRating,
+      REDPACKRating,
+      ESTAFETARating,
     ]);
     //const p = await (await redisConnection).get("FEDEXTOKEN");
     const dataToFormat = [...arrOfPromises];
@@ -36,5 +38,6 @@ export const getRating = async (req: Request, res: Response) => {
     });
   } catch (error) {
     res.status(400).send({ message: "Error" });
+    console.log(error);
   }
 };

@@ -12,36 +12,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const model_1 = __importDefault(require("../../modules/auth/model"));
+//import userModel from "../../modules/auth/model";
 const prisma_1 = __importDefault(require("../prisma"));
 class Turn {
     constructor(turn) {
         this.turn = turn;
     }
-    create(turnData) {
+    create(turnCreateData) {
         return __awaiter(this, void 0, void 0, function* () {
+            const { openBalance, cashierId } = turnCreateData;
             try {
-                const { startDate, endDate, openBalance, cashierId } = turnData;
                 const newTurn = yield this.turn.create({
                     data: {
-                        startDate: startDate,
-                        endDate: endDate,
+                        startDate: new Date(Date.now()),
+                        endDate: null,
                         openBalance: openBalance,
-                        cashierId: !cashierId ? "" : cashierId,
+                        cashierId: cashierId,
+                        closeBalance: null,
+                        sales: undefined,
                     },
                 });
                 if (!newTurn)
-                    throw Error("Can't create turn");
+                    return null;
+                return newTurn;
             }
             catch (error) {
-                throw Error("Can't create turn");
+                throw error;
             }
         });
     }
     end(id, closeBalance) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const currentTurn = yield this.turn.update({
+                const turnUpdated = yield this.turn.update({
                     where: {
                         id: id,
                     },
@@ -50,37 +53,35 @@ class Turn {
                         closeBalance: closeBalance,
                     },
                 });
-                if (!currentTurn)
-                    throw Error("Can't end turn");
-                return currentTurn;
+                if (!turnUpdated)
+                    return null;
+                return turnUpdated;
             }
             catch (error) {
-                throw Error("Can't end turn");
+                return error;
             }
         });
     }
-    assign(id, turnData) {
+    get({ id, cashierId }) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield model_1.default.getUser({ id: id });
-                if (!user)
-                    throw new Error("Can't assing turn to current user");
-                if (user.cashierId) {
-                    const newTurn = yield this.create(turnData);
-                    return newTurn;
-                }
+                const turn = yield this.turn.findUnique({
+                    where: {
+                        id: id,
+                        cashierId: cashierId,
+                    },
+                });
+                if (!turn)
+                    return null;
+                return turn;
             }
             catch (error) {
-                throw new Error(error.message);
+                return error;
             }
         });
     }
-    deleteTurn(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-            }
-            catch (error) { }
-        });
+    update({}) {
+        return __awaiter(this, void 0, void 0, function* () { });
     }
 }
 const turnModel = new Turn(prisma_1.default.turn);

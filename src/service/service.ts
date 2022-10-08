@@ -4,7 +4,7 @@ import {
   formatTrackingBody,
   formatShippingBody,
 } from "../utils/utils";
-import puppeter, { Browser, Page } from "puppeteer-core";
+import puppeter, { Browser, Page } from "puppeteer";
 import qs from "qs";
 import { performance } from "perf_hooks";
 export abstract class Service {
@@ -65,8 +65,6 @@ export class ApiService extends Service {
       } else if (this.serviceName === "REDPACK") {
         console.log("entro");
         const body = qs.stringify({
-          client_secret: `${process.env.CLIENT_SECRET_REDPACK}`,
-          client_id: `${process.env.CLIENT_ID_REDPACK}`,
           grant_type: "password",
           username: `${process.env.USERNAME_REDPACK}`,
           password: `${process.env.PASSWORD_REDPACK}`,
@@ -77,6 +75,9 @@ export class ApiService extends Service {
           url: `https://api.redpack.com.mx/oauth/token`,
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Basic ${Buffer.from(
+              `${process.env.CLIENT_ID_REDPACK}:${process.env.CLIENT_SECRET_REDPACK}`
+            ).toString("base64")}`,
           },
         });
         console.log("pepe");
@@ -115,13 +116,18 @@ export class ApiService extends Service {
     const trackingInfo = this.subServices.tracking;
     const isPost = trackingInfo.method === "POST";
     let body;
+    const url = `${this.baseUrl}${(trackingInfo.url as string).replace(
+      "0",
+      trackingNumber.toString()
+    )}`;
+    console.log(url);
     if (isPost) {
       body = formatTrackingBody(trackingNumber);
     }
     try {
       const { data } = await axios({
         method: trackingInfo.method as string,
-        url: trackingInfo.url as string,
+        url: url,
         data: body,
         headers: this.getHeaders(),
       });
@@ -166,9 +172,7 @@ export class ScrappingService extends Service {
     this.init();
   }
   private async init() {
-    this.browser = await puppeter.launch({
-      executablePath: "/usr/bin/chromium-browser",
-    });
+    this.browser = await puppeter.launch({});
     this.page = await this.browser.newPage();
     await this.page.goto(this.baseUrl);
   }

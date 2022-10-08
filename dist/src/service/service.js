@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScrappingService = exports.ApiService = exports.Service = void 0;
 const axios_1 = __importDefault(require("axios"));
 const utils_1 = require("../utils/utils");
-const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
+const puppeteer_1 = __importDefault(require("puppeteer"));
 const qs_1 = __importDefault(require("qs"));
 const perf_hooks_1 = require("perf_hooks");
 class Service {
@@ -70,8 +70,6 @@ class ApiService extends Service {
                 else if (this.serviceName === "REDPACK") {
                     console.log("entro");
                     const body = qs_1.default.stringify({
-                        client_secret: `${process.env.CLIENT_SECRET_REDPACK}`,
-                        client_id: `${process.env.CLIENT_ID_REDPACK}`,
                         grant_type: "password",
                         username: `${process.env.USERNAME_REDPACK}`,
                         password: `${process.env.PASSWORD_REDPACK}`,
@@ -82,6 +80,7 @@ class ApiService extends Service {
                         url: `https://api.redpack.com.mx/oauth/token`,
                         headers: {
                             "Content-Type": "application/x-www-form-urlencoded",
+                            Authorization: `Basic ${Buffer.from(`${process.env.CLIENT_ID_REDPACK}:${process.env.CLIENT_SECRET_REDPACK}`).toString("base64")}`,
                         },
                     });
                     console.log("pepe");
@@ -126,13 +125,15 @@ class ApiService extends Service {
             const trackingInfo = this.subServices.tracking;
             const isPost = trackingInfo.method === "POST";
             let body;
+            const url = `${this.baseUrl}${trackingInfo.url.replace("0", trackingNumber.toString())}`;
+            console.log(url);
             if (isPost) {
                 body = (0, utils_1.formatTrackingBody)(trackingNumber);
             }
             try {
                 const { data } = yield (0, axios_1.default)({
                     method: trackingInfo.method,
-                    url: trackingInfo.url,
+                    url: url,
                     data: body,
                     headers: this.getHeaders(),
                 });
@@ -182,9 +183,7 @@ class ScrappingService extends Service {
     }
     init() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.browser = yield puppeteer_core_1.default.launch({
-                executablePath: "/usr/bin/chromium-browser",
-            });
+            this.browser = yield puppeteer_1.default.launch({});
             this.page = yield this.browser.newPage();
             yield this.page.goto(this.baseUrl);
         });

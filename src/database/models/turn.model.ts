@@ -1,14 +1,16 @@
 import { Cashier, PrismaClient, Sales } from "@prisma/client";
-import userModel from "../../modules/auth/model";
+//import userModel from "../../modules/auth/model";
 import prisma from "../prisma";
+import { Turn as turnType } from "@prisma/client";
+import cashierModel from "./cashier.model";
 
-type TurnData = {
-  startDate: Date;
-  endDate: null;
+export type TurnData = {
+  startDate?: Date;
+  endDate?: Date;
+  closeBalance?: number;
   openBalance: number;
-  sales: Sales[];
-  cashierId?: string;
-  cashier?: Cashier;
+  cashierId: string;
+  sales?: Sales[];
 };
 
 type TurnEndData = {
@@ -16,27 +18,38 @@ type TurnEndData = {
   TurnData: TurnData;
 };
 
+type TurnUpdateData = {
+  startDate?: Date;
+  endDate?: Date;
+  closeBalance?: number;
+  openBalance?: number;
+  cashierId?: string;
+  sales?: Sales[];
+};
 class Turn {
   constructor(private readonly turn: PrismaClient["turn"]) {}
-  async create(turnData: TurnData): Promise<void | Error> {
+  async create(turnCreateData: TurnData) {
+    const { openBalance, cashierId } = turnCreateData;
     try {
-      const { startDate, endDate, openBalance, cashierId } = turnData;
       const newTurn = await this.turn.create({
         data: {
-          startDate: startDate,
-          endDate: endDate,
+          startDate: new Date(Date.now()),
+          endDate: null,
           openBalance: openBalance,
-          cashierId: !cashierId ? "" : cashierId,
+          cashierId: cashierId,
+          closeBalance: null,
+          sales: undefined,
         },
       });
-      if (!newTurn) throw Error("Can't create turn");
+      if (!newTurn) return null;
+      return newTurn;
     } catch (error) {
-      throw Error("Can't create turn");
+      throw error;
     }
   }
-  async end(id: string, closeBalance: number) {
+  async end(id: string, closeBalance: number): Promise<null | turnType> {
     try {
-      const currentTurn = await this.turn.update({
+      const turnUpdated = await this.turn.update({
         where: {
           id: id,
         },
@@ -45,31 +58,30 @@ class Turn {
           closeBalance: closeBalance,
         },
       });
-      if (!currentTurn) throw Error("Can't end turn");
-      return currentTurn;
-    } catch (error) {
-      throw Error("Can't end turn");
-    }
-  }
-  async assign(id: string, turnData: TurnData) {
-    try {
-      const user = await userModel.getUser({ id: id });
-      if (!user) throw new Error("Can't assing turn to current user");
-      if (user.cashierId) {
-        const newTurn = await this.create(turnData);
-        return newTurn;
-      }
+      if (!turnUpdated) return null;
+      return turnUpdated;
     } catch (error: any) {
-      throw new Error(error.message);
+      return error;
     }
   }
 
-  async deleteTurn(id: string) {
+  async get({ id, cashierId }: { id: string; cashierId: string }) {
     try {
-    } catch (error) {}
+      const turn = await this.turn.findUnique({
+        where: {
+          id: id,
+          cashierId: cashierId,
+        },
+      });
+      if (!turn) return null;
+      return turn;
+    } catch (error) {
+      return error;
+    }
   }
+
+  async update({}) {}
 }
 
 const turnModel = new Turn(prisma.turn);
-
 export default turnModel;

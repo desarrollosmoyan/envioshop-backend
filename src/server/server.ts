@@ -6,13 +6,14 @@ import cookieParser from "cookie-parser";
 import trackingRouter from "../modules/tracking/tracking.router";
 import userRouter from "../modules/user/user.route";
 import shippingRouter from "../modules/shipment/shipping.route";
-import { PAQUETEEXPRESSService } from "../..";
+const cors = require("cors");
 import axios from "axios";
-import querystring from "querystring";
+
 const server = express();
 server.use(express.urlencoded({ extended: false }));
 server.use(express.json());
 server.use(cookieParser());
+server.use(cors());
 
 server.use("/shipping", shippingRouter);
 server.use("/auth", authRouter);
@@ -22,9 +23,7 @@ server.use("/user", userRouter);
 server.use("/test", async (req: Request, res: Response) => {
   try {
     const params = new URLSearchParams();
-    params.append("client_secret", "R3dPack&2020");
-    params.append("client_id", "app-redpack-web");
-    //params.append("grant_type", "password");
+    params.append("grant_type", "password");
     params.append("username", "FENVIOSHOP");
     params.append("password", "Envioshop.22");
     const { data } = await axios({
@@ -32,6 +31,7 @@ server.use("/test", async (req: Request, res: Response) => {
       url: "https://api.redpack.com.mx/oauth/token",
       headers: {
         "Content-type": "application/x-www-form-urlencoded",
+        Authorization: `Basic YXBwLXJlZHBhY2std2ViOlIzZFBhY2smMjAyMA==`,
       },
       data: params,
     });

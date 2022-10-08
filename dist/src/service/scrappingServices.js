@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ScrappingService2 = void 0;
 const service_1 = require("./service");
-const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
+const puppeteer_1 = __importDefault(require("puppeteer"));
 class ScrappingService2 extends service_1.Service {
     constructor(serviceData) {
         super(serviceData);
@@ -22,7 +22,7 @@ class ScrappingService2 extends service_1.Service {
     }
     init() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.browser = yield puppeteer_core_1.default.launch({
+            this.browser = yield puppeteer_1.default.launch({
                 executablePath: "/usr/bin/chromium-browser",
             });
             this.page = yield this.browser.newPage();

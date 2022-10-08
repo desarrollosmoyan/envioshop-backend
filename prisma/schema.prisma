@@ -44,16 +44,19 @@ model Cashier {
   Franchise   Franchise? @relation(fields: [franchiseId], references: [id])
   franchiseId String?    @db.ObjectId
   Turn        Turn[]
+  currentTurn String?    @db.ObjectId
 }
 
 model Sales {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  serviceName serviceName
-  serviceType String
-  Franchise   Franchise?  @relation(fields: [franchiseId], references: [id])
-  franchiseId String?     @db.ObjectId
-  Turn        Turn?       @relation(fields: [turnId], references: [id])
-  turnId      String?     @db.ObjectId
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  serviceName   serviceName
+  serviceType   String
+  shipmentPrice Float
+  shipmentPdf   String
+  Franchise     Franchise?  @relation(fields: [franchiseId], references: [id])
+  franchiseId   String?     @db.ObjectId
+  Turn          Turn?       @relation(fields: [turnId], references: [id])
+  turnId        String?     @db.ObjectId
 }
 
 model Turn {
@@ -64,5 +67,9 @@ model Turn {
   endDate      DateTime?
   sales        Sales[]
   cashier      Cashier   @relation(fields: [cashierId], references: [id])
-  cashierId    String    @db.ObjectId
+  cashierId    String    @unique @db.ObjectId
+}
+
+model User {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 }

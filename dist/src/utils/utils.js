@@ -12,12 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateToken = exports.verifyPassword = exports.encryptPassword = exports.whichUserTypeIsIt = exports.loginUserByType = exports.createUserByType = exports.checkIfUsernameOrEmailAlreadyExists = exports.selectUserByRoleAndReturn = exports.formatRatingResponse = exports.formatShippingBody = exports.formatTrackingBody = exports.makeTrackRequest = exports.formatRatingBody = void 0;
+exports.generateToken = exports.verifyPassword = exports.encryptPassword = exports.whichUserTypeIsIt = exports.loginUserByType = exports.createUserByType = exports.selectUserByRoleAndReturn = exports.formatRatingResponse = exports.formatShippingBody = exports.formatTrackingBody = exports.makeTrackRequest = exports.formatRatingBody = void 0;
 const axios_1 = __importDefault(require("axios"));
 const admin_model_1 = __importDefault(require("../database/models/admin.model"));
 const cashier_model_1 = __importDefault(require("../database/models/cashier.model"));
 const franchise_model_1 = __importDefault(require("../database/models/franchise.model"));
-const model_1 = __importDefault(require("../modules/auth/model"));
 const bcrypt_1 = require("bcrypt");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const models = {
@@ -46,7 +45,8 @@ const formatRatingBody = (body, schema) => {
             pickupType: "DROPOFF_AT_FEDEX_LOCATION",
             serviceType: "FEDEX_EXPRESS_SAVER",
             packagingType: "YOUR_PACKAGING",
-            rateRequestType: ["LIST"],
+            //STANDARD_OVERNIGHT - Economico - FEDEX_EXPRESS_SAVER,
+            rateRequestType: ["ACCOUNT"],
             requestedPackageLineItems: [
                 {
                     weight: {
@@ -179,7 +179,7 @@ const formatRatingBody = (body, schema) => {
     const redpackSchema = [
         {
             deliveryType: {
-                id: 0,
+                id: 2,
             },
             destination: {
                 zipCodeDestination: body.destinyPostalCode,
@@ -191,7 +191,7 @@ const formatRatingBody = (body, schema) => {
                 {
                     high: body.packageSize.height,
                     length: body.packageSize.length,
-                    piece: 0,
+                    piece: 1,
                     weigth: body.packageSize.weight,
                     width: body.packageSize.width,
                 },
@@ -460,8 +460,7 @@ const formatShippingBody = (data, serviceName) => {
     return dhlSchema;
 };
 exports.formatShippingBody = formatShippingBody;
-const iterateAndLevel = ({ output, products, RateResponse, body, }) => {
-    console.log(body);
+const iterateAndLevel = ({ output, products, RateResponse, body, values, }) => {
     if (output) {
         const arr = output.rateReplyDetails;
         return arr.map((service) => {
@@ -521,9 +520,24 @@ const iterateAndLevel = ({ output, products, RateResponse, body, }) => {
         });
         return arr;
     }
+    if (values) {
+        const arr = values.map((service) => {
+            return {
+                serviceName: service.serviceType["serviceType"],
+                prices: {
+                    total: service.quoteDetail[3],
+                    subTotal: 200,
+                },
+                company: "REDPACK",
+            };
+        });
+        return arr;
+    }
 };
 const formatRatingResponse = (responses) => {
-    const res = responses.flatMap((data) => iterateAndLevel(data));
+    const res = responses
+        .flatMap((data) => iterateAndLevel(data instanceof Array ? data[0] : data))
+        .filter((element) => (element !== null ? true : false));
     return res;
 };
 exports.formatRatingResponse = formatRatingResponse;
@@ -545,25 +559,6 @@ const selectUserByRoleAndReturn = (payload) => __awaiter(void 0, void 0, void 0,
     return await model.getUser(payload.id);*/
 });
 exports.selectUserByRoleAndReturn = selectUserByRoleAndReturn;
-const checkIfUsernameOrEmailAlreadyExists = (userData) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const existsUserWithSameEmail = yield model_1.default.getUser({
-            email: userData.email,
-        });
-        if (existsUserWithSameEmail)
-            return true;
-        const existsUserWithSameName = yield model_1.default.getUser({
-            name: userData.name,
-        });
-        if (existsUserWithSameName)
-            return true;
-        return false;
-    }
-    catch (error) {
-        throw error;
-    }
-});
-exports.checkIfUsernameOrEmailAlreadyExists = checkIfUsernameOrEmailAlreadyExists;
 const createUserByType = (data, type) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         //const password = await encryptPassword(data.password);

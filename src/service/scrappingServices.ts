@@ -1,5 +1,5 @@
 import { Service } from "./service";
-import puppeteer, { Browser, Page } from "puppeteer-core";
+import puppeteer, { Browser, Page } from "puppeteer";
 
 export class ScrappingService2 extends Service {
   browser?: Browser;

@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { genSalt, hash, compare } from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../../database/prisma";
-import roleModel from "../../database/models/role.model";
 
 export enum roleName {
   admin = "admin",
@@ -37,7 +36,7 @@ type UpdateData = {
   };
 };
 
-class User {
+/*class User {
   constructor(private readonly user: PrismaClient["user"]) {}
 
   async encriptPassword(password: string) {
@@ -85,20 +84,20 @@ class User {
       const { email, password } = signinData;
       const user = await this.user.findUnique({
         where: {
-          email: email,
+         // email: email,
         },
       });
       if (!user) return new Error("User doesn't exist");
 
       const hasPasswordMatched = await this.comparePassword(
-        password,
-        user.password
+        //password,
+        //user.password
       );
       if (!hasPasswordMatched) return new Error("Password doesn't match");
       const token = await this.generateToken(
-        user.id,
-        user.email,
-        user.password
+       // user.id,
+        //user.email,
+        //user.password
       );
       return { ...user, token: token };
     } catch (error: any) {
@@ -151,3 +150,4 @@ class User {
 const userModel = new User(prisma.user);
 
 export default userModel;
+*/

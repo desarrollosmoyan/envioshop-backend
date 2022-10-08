@@ -5,7 +5,6 @@ import adminModel from "../database/models/admin.model";
 import cashierModel from "../database/models/cashier.model";
 import franchiseModel from "../database/models/franchise.model";
 import prisma from "../database/prisma";
-import userModel from "../modules/auth/model";
 import { compare, genSalt, hash } from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -35,7 +34,8 @@ export const formatRatingBody = (body: Rating, schema: string) => {
       pickupType: "DROPOFF_AT_FEDEX_LOCATION",
       serviceType: "FEDEX_EXPRESS_SAVER",
       packagingType: "YOUR_PACKAGING",
-      rateRequestType: ["LIST"],
+      //STANDARD_OVERNIGHT - Economico - FEDEX_EXPRESS_SAVER,
+      rateRequestType: ["ACCOUNT"],
       requestedPackageLineItems: [
         {
           weight: {
@@ -170,7 +170,7 @@ export const formatRatingBody = (body: Rating, schema: string) => {
   const redpackSchema = [
     {
       deliveryType: {
-        id: 0,
+        id: 2,
       },
       destination: {
         zipCodeDestination: body.destinyPostalCode,
@@ -182,7 +182,7 @@ export const formatRatingBody = (body: Rating, schema: string) => {
         {
           high: body.packageSize.height,
           length: body.packageSize.length,
-          piece: 0,
+          piece: 1,
           weigth: body.packageSize.weight,
           width: body.packageSize.width,
         },
@@ -487,13 +487,14 @@ const iterateAndLevel = ({
   products,
   RateResponse,
   body,
+  values,
 }: {
   output?: any;
   products?: any;
   RateResponse?: any;
   body?: any;
+  values?: any;
 }) => {
-  console.log(body);
   if (output) {
     const arr = output.rateReplyDetails;
     return arr.map((service: any) => {
@@ -555,10 +556,27 @@ const iterateAndLevel = ({
     });
     return arr;
   }
+  if (values) {
+    const arr = values.map((service: any) => {
+      return {
+        serviceName: service.serviceType["serviceType"],
+        prices: {
+          total: service.quoteDetail[3],
+          subTotal: 200,
+        },
+        company: "REDPACK",
+      };
+    });
+    return arr;
+  }
 };
 
 export const formatRatingResponse = (responses: any) => {
-  const res = responses.flatMap((data: any) => iterateAndLevel(data));
+  const res = responses
+    .flatMap((data: any) =>
+      iterateAndLevel(data instanceof Array ? data[0] : data)
+    )
+    .filter((element: any) => (element !== null ? true : false));
   return res;
 };
 
@@ -578,27 +596,6 @@ export const selectUserByRoleAndReturn = async (payload: JwtPayload) => {
       return new Error("Invalid user type");
   }
   return await model.getUser(payload.id);*/
-};
-
-export const checkIfUsernameOrEmailAlreadyExists = async (userData: {
-  email: string;
-  name: string;
-}) => {
-  try {
-    const existsUserWithSameEmail = await userModel.getUser({
-      email: userData.email,
-    });
-    if (existsUserWithSameEmail) return true;
-
-    const existsUserWithSameName = await userModel.getUser({
-      name: userData.name,
-    });
-    if (existsUserWithSameName) return true;
-
-    return false;
-  } catch (error) {
-    throw error;
-  }
 };
 
 export const createUserByType = async (data: any, type: string) => {

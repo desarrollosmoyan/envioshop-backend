@@ -16,6 +16,7 @@ type CashierUpdateData = {
     password?: string;
     email?: string;
     franchiseId?: string;
+    currentTurn?: string;
   };
 };
 class Cashier {

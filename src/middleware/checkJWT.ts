@@ -4,7 +4,6 @@ import adminModel from "../database/models/admin.model";
 import cashierModel from "../database/models/cashier.model";
 import franchiseModel from "../database/models/franchise.model";
 import prisma from "../database/prisma";
-import userModel from "../modules/auth/model";
 import { selectUserByRoleAndReturn } from "../utils/utils";
 
 const allowedRoles = {

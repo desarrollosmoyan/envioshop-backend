@@ -13,12 +13,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const prisma_1 = __importDefault(require("../prisma"));
+var serviceName;
+(function (serviceName) {
+    serviceName["FEDEX"] = "FEDEX";
+    serviceName["DHL"] = "DHL";
+    serviceName["REDPACK"] = "REDPACK";
+    serviceName["ESTAFETA"] = "ESTAFETA";
+    serviceName["UPS"] = "UPS";
+})(serviceName || (serviceName = {}));
 class Sales {
     constructor(sale) {
         this.sale = sale;
     }
-    create() {
-        return __awaiter(this, void 0, void 0, function* () { });
+    create(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const newSale = yield this.sale.create({
+                    data: Object.assign({}, data),
+                });
+                if (!newSale)
+                    return null;
+                return newSale;
+            }
+            catch (error) { }
+        });
     }
     get() {
         return __awaiter(this, void 0, void 0, function* () { });

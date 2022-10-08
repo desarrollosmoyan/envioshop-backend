@@ -19,11 +19,13 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const tracking_router_1 = __importDefault(require("../modules/tracking/tracking.router"));
 const user_route_1 = __importDefault(require("../modules/user/user.route"));
 const shipping_route_1 = __importDefault(require("../modules/shipment/shipping.route"));
+const cors = require("cors");
 const axios_1 = __importDefault(require("axios"));
 const server = (0, express_1.default)();
 server.use(express_1.default.urlencoded({ extended: false }));
 server.use(express_1.default.json());
 server.use((0, cookie_parser_1.default)());
+server.use(cors());
 server.use("/shipping", shipping_route_1.default);
 server.use("/auth", auth_route_1.default);
 server.use("/rating", rating_route_1.default);
@@ -32,9 +34,7 @@ server.use("/user", user_route_1.default);
 server.use("/test", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const params = new URLSearchParams();
-        params.append("client_secret", "R3dPack&2020");
-        params.append("client_id", "app-redpack-web");
-        //params.append("grant_type", "password");
+        params.append("grant_type", "password");
         params.append("username", "FENVIOSHOP");
         params.append("password", "Envioshop.22");
         const { data } = yield (0, axios_1.default)({
@@ -42,6 +42,7 @@ server.use("/test", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             url: "https://api.redpack.com.mx/oauth/token",
             headers: {
                 "Content-type": "application/x-www-form-urlencoded",
+                Authorization: `Basic YXBwLXJlZHBhY2std2ViOlIzZFBhY2smMjAyMA==`,
             },
             data: params,
         });

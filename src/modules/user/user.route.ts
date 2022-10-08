@@ -6,14 +6,10 @@ import {
   deleteOneFranchise,
   getAllCashiers,
   getAllFranchises,
-  getAllUsers,
-  updateUser,
 } from "./user.controller";
 
 const userRouter = Router();
 
-userRouter.get("/", getAllUsers);
-userRouter.patch("/:id", updateUser);
 userRouter.post("/admin", createOneAdmin);
 userRouter.post("/franchise", createAFranchise);
 userRouter.get("/franchise", getAllFranchises);
