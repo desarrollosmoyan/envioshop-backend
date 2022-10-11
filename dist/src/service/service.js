@@ -95,7 +95,6 @@ class ApiService extends Service {
     }
     getRating(ratingBody) {
         return __awaiter(this, void 0, void 0, function* () {
-            const startTime = perf_hooks_1.performance.now();
             if (!this.subServices) {
                 return new Error("This service doesn't have subServices");
             }
@@ -108,8 +107,6 @@ class ApiService extends Service {
                     headers: this.getHeaders(),
                     data: body,
                 });
-                const endtime = perf_hooks_1.performance.now();
-                console.log(`${this.serviceName} elapsedTime:${endtime - startTime}`);
                 return data;
             }
             catch (error) {
@@ -236,6 +233,7 @@ class ScrappingService extends Service {
                     yield this.page.type("#highPackage", ratingBody.packageSize.height.toString());
                     yield this.page.type("#longPackage", ratingBody.packageSize.length.toString());
                     yield this.page.type("#widthPackage", ratingBody.packageSize.width.toString());
+                    yield this.page.screenshot({ path: "./img.png", type: "png" });
                     yield this.page.click("#btnEnviarCotiza");
                     yield this.page.screenshot({ path: "./img.png", type: "png" });
                     yield this.page.waitForSelector("#wrapResultados");
@@ -247,8 +245,7 @@ class ScrappingService extends Service {
                             return price;
                         }
                     })));
-                    const endTime = perf_hooks_1.performance.now();
-                    console.log(`${this.serviceName} elapsedTime:${endTime - startTime}`);
+                    console.log(prices);
                     return prices;
                 }
                 catch (error) {

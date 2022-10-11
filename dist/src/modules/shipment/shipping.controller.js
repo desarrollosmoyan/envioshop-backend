@@ -30,7 +30,7 @@ const createShipment = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (error) {
         console.log(error);
-        res.status(404).send(error);
+        res.status(404).json({ message: error.message });
     }
 });
 exports.createShipment = createShipment;

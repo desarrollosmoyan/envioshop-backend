@@ -21,7 +21,7 @@ export const getAllFranchises = async (req: Request, res: Response) => {
     if (!franchiseList) return res.status(400).json({ message: "Error" });
     const franchiseListCleaned = franchiseList.map(
       (franchiseItem: Franchise) => {
-        const { password, id, ...franchise } = franchiseItem;
+        const { password, ...franchise } = franchiseItem;
         return franchise;
       }
     );
@@ -76,5 +76,16 @@ export const createACashier = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     res.status(401).json({ message: error.message });
+  }
+};
+
+export const deleteOneCashier = async (req: Request, res: Response) => {
+  try {
+    const cashierId = req.params.id;
+    const deletedCashier = await cashierModel.delete(cashierId);
+    if (!deletedCashier)
+      return res.status(400).json({ message: "Can't delete cashier" });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
   }
 };

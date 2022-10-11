@@ -33,27 +33,32 @@ class Franchise {
   }
   async create(data: FranchiseData, isTokenRequired: boolean) {
     const { name, password, email, ubication, cellphone } = data;
+    console.log(data);
     const encryptedPassword = await encryptPassword(password);
-    const newFranchise = await this.franchise.create({
-      data: {
-        name: name,
-        password: encryptedPassword,
-        email: email,
-        cellphone: cellphone,
-        ubication: ubication,
-        sales: undefined,
-        cashiers: undefined,
-      },
-    });
-    if (!newFranchise) return null;
-    if (!isTokenRequired) return { ...newFranchise, type: "franchise" };
-    const token = await generateToken(
-      newFranchise.id,
-      newFranchise.email,
-      newFranchise.password,
-      "franchise"
-    );
-    return { ...newFranchise, type: "franchise", token: token };
+    try {
+      const newFranchise = await this.franchise.create({
+        data: {
+          name: name,
+          password: encryptedPassword,
+          email: email,
+          cellphone: cellphone,
+          ubication: ubication,
+          sales: undefined,
+          cashiers: undefined,
+        },
+      });
+      if (!newFranchise) return null;
+      if (!isTokenRequired) return { ...newFranchise, type: "franchise" };
+      const token = await generateToken(
+        newFranchise.id,
+        newFranchise.email,
+        newFranchise.password,
+        "franchise"
+      );
+      return { ...newFranchise, type: "franchise", token: token };
+    } catch (error) {
+      console.log(error);
+    }
   }
   async update(updateData: FranchiseUpdateData) {
     const { id, data } = updateData;

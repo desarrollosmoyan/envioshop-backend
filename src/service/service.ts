@@ -89,7 +89,6 @@ export class ApiService extends Service {
     }
   }
   async getRating(ratingBody: Rating): Promise<void | Error> {
-    const startTime = performance.now();
     if (!this.subServices) {
       return new Error("This service doesn't have subServices");
     }
@@ -102,8 +101,6 @@ export class ApiService extends Service {
         headers: this.getHeaders(),
         data: body,
       });
-      const endtime = performance.now();
-      console.log(`${this.serviceName} elapsedTime:${endtime - startTime}`);
       return data;
     } catch (error: any) {
       return error;
@@ -241,6 +238,7 @@ export class ScrappingService extends Service {
           "#widthPackage",
           ratingBody.packageSize.width.toString()
         );
+        await this.page.screenshot({ path: "./img.png", type: "png" });
         await this.page.click("#btnEnviarCotiza");
         await this.page.screenshot({ path: "./img.png", type: "png" });
         await this.page.waitForSelector("#wrapResultados");
@@ -261,8 +259,7 @@ export class ScrappingService extends Service {
             }
           })
         );
-        const endTime = performance.now();
-        console.log(`${this.serviceName} elapsedTime:${endTime - startTime}`);
+        console.log(prices);
         return prices;
       } catch (error: any) {
         return error;

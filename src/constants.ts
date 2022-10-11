@@ -100,7 +100,7 @@ export const REDPACK = {
       method: "",
     },
     shipping: {
-      url: "/shipments",
+      url: "apiqa2.redpack.com.mx:5600/redpack/automatic-documentation",
       method: "",
     },
   },

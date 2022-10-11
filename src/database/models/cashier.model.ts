@@ -80,6 +80,16 @@ class Cashier {
     if (!cashierList) return null;
     return cashierList;
   }
+
+  async delete(id: string) {
+    const deletedCashier = await this.cashier.delete({
+      where: {
+        id: id,
+      },
+    });
+    if (!deletedCashier) return null;
+    return deletedCashier;
+  }
 }
 
 const cashierModel = new Cashier(prisma.cashier);

@@ -333,10 +333,12 @@ export const formatShippingBody = (data: any, serviceName: string) => {
     shipperCity,
     shipperCounty,
     packageSize,
+    plannedShippingDate,
   } = data;
+  console.log(plannedShippingDate);
   const dhlSchema = {
     productCode: "N",
-    plannedShippingDateAndTime: "2022-09-25T10:43:06 GMT-06:00",
+    plannedShippingDateAndTime: plannedShippingDate,
     pickup: {
       isRequested: false,
     },
@@ -561,8 +563,8 @@ const iterateAndLevel = ({
       return {
         serviceName: service.serviceType["serviceType"],
         prices: {
-          total: service.quoteDetail[3],
-          subTotal: 200,
+          total: service.quoteDetail[3].price.toFixed(2),
+          subTotal: service.quoteDetail[1].price.toFixed(2),
         },
         company: "REDPACK",
       };

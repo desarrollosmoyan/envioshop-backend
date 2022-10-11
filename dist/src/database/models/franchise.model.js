@@ -30,24 +30,30 @@ class Franchise {
     create(data, isTokenRequired) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, password, email, ubication, cellphone } = data;
+            console.log(data);
             const encryptedPassword = yield (0, utils_1.encryptPassword)(password);
-            const newFranchise = yield this.franchise.create({
-                data: {
-                    name: name,
-                    password: encryptedPassword,
-                    email: email,
-                    cellphone: cellphone,
-                    ubication: ubication,
-                    sales: undefined,
-                    cashiers: undefined,
-                },
-            });
-            if (!newFranchise)
-                return null;
-            if (!isTokenRequired)
-                return Object.assign(Object.assign({}, newFranchise), { type: "franchise" });
-            const token = yield (0, utils_2.generateToken)(newFranchise.id, newFranchise.email, newFranchise.password, "franchise");
-            return Object.assign(Object.assign({}, newFranchise), { type: "franchise", token: token });
+            try {
+                const newFranchise = yield this.franchise.create({
+                    data: {
+                        name: name,
+                        password: encryptedPassword,
+                        email: email,
+                        cellphone: cellphone,
+                        ubication: ubication,
+                        sales: undefined,
+                        cashiers: undefined,
+                    },
+                });
+                if (!newFranchise)
+                    return null;
+                if (!isTokenRequired)
+                    return Object.assign(Object.assign({}, newFranchise), { type: "franchise" });
+                const token = yield (0, utils_2.generateToken)(newFranchise.id, newFranchise.email, newFranchise.password, "franchise");
+                return Object.assign(Object.assign({}, newFranchise), { type: "franchise", token: token });
+            }
+            catch (error) {
+                console.log(error);
+            }
         });
     }
     update(updateData) {

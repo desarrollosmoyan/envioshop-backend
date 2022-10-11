@@ -85,6 +85,18 @@ class Cashier {
             return cashierList;
         });
     }
+    delete(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const deletedCashier = yield this.cashier.delete({
+                where: {
+                    id: id,
+                },
+            });
+            if (!deletedCashier)
+                return null;
+            return deletedCashier;
+        });
+    }
 }
 const cashierModel = new Cashier(prisma_1.default.cashier);
 exports.default = cashierModel;

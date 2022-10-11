@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createACashier = exports.createAFranchise = exports.deleteOneFranchise = exports.getAllCashiers = exports.getAllFranchises = exports.createOneAdmin = void 0;
+exports.deleteOneCashier = exports.createACashier = exports.createAFranchise = exports.deleteOneFranchise = exports.getAllCashiers = exports.getAllFranchises = exports.createOneAdmin = void 0;
 const admin_model_1 = __importDefault(require("../../database/models/admin.model"));
 const cashier_model_1 = __importDefault(require("../../database/models/cashier.model"));
 const franchise_model_1 = __importDefault(require("../../database/models/franchise.model"));
@@ -47,7 +47,7 @@ const getAllFranchises = (req, res) => __awaiter(void 0, void 0, void 0, functio
         if (!franchiseList)
             return res.status(400).json({ message: "Error" });
         const franchiseListCleaned = franchiseList.map((franchiseItem) => {
-            const { password, id } = franchiseItem, franchise = __rest(franchiseItem, ["password", "id"]);
+            const { password } = franchiseItem, franchise = __rest(franchiseItem, ["password"]);
             return franchise;
         });
         res.status(200).json([...franchiseListCleaned]);
@@ -107,3 +107,15 @@ const createACashier = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.createACashier = createACashier;
+const deleteOneCashier = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const cashierId = req.params.id;
+        const deletedCashier = yield cashier_model_1.default.delete(cashierId);
+        if (!deletedCashier)
+            return res.status(400).json({ message: "Can't delete cashier" });
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+exports.deleteOneCashier = deleteOneCashier;
