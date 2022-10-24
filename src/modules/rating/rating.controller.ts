@@ -30,7 +30,7 @@ export const getRating = async (req: Request, res: Response) => {
     const dataToFormat = [...arrOfPromises];
     const dataFormated = [
       ...formatRatingResponse(dataToFormat),
-      ESTAFETARating,
+      ...arrOfPromises[5]!,
     ].flatMap((element) => element);
     res.status(200).json({
       message: "Rating maked successfully",

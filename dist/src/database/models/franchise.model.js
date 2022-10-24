@@ -19,9 +19,32 @@ class Franchise {
     constructor(franchise) {
         this.franchise = franchise;
     }
-    getAll() {
+    getAll([offset = 0, limit = 20]) {
         return __awaiter(this, void 0, void 0, function* () {
-            const franchiseList = yield this.franchise.findMany();
+            const franchiseList = yield this.franchise.findMany({
+                skip: offset,
+                take: limit,
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    ubication: true,
+                    cellphone: true,
+                    createdAt: true,
+                    sales: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    cashiers: {
+                        select: {
+                            name: true,
+                            email: true,
+                            id: true,
+                        },
+                    },
+                },
+            });
             if (!franchiseList)
                 return null;
             return franchiseList;
@@ -30,7 +53,6 @@ class Franchise {
     create(data, isTokenRequired) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, password, email, ubication, cellphone } = data;
-            console.log(data);
             const encryptedPassword = yield (0, utils_1.encryptPassword)(password);
             try {
                 const newFranchise = yield this.franchise.create({
@@ -48,7 +70,7 @@ class Franchise {
                     return null;
                 if (!isTokenRequired)
                     return Object.assign(Object.assign({}, newFranchise), { type: "franchise" });
-                const token = yield (0, utils_2.generateToken)(newFranchise.id, newFranchise.email, newFranchise.password, "franchise");
+                const token = yield (0, utils_2.generateToken)(newFranchise.id, newFranchise.email, "franchise");
                 return Object.assign(Object.assign({}, newFranchise), { type: "franchise", token: token });
             }
             catch (error) {
@@ -85,11 +107,26 @@ class Franchise {
     get({ id, email }) {
         return __awaiter(this, void 0, void 0, function* () {
             const franchiseFound = id
-                ? yield this.franchise.findUnique({ where: { id: id } })
-                : yield this.franchise.findUnique({ where: { email: email } });
+                ? yield this.franchise.findUnique({
+                    where: { id: id },
+                    include: {
+                        cashiers: true,
+                    },
+                })
+                : yield this.franchise.findUnique({
+                    where: { email: email },
+                    include: {
+                        cashiers: true,
+                    },
+                });
             if (!franchiseFound)
                 return null;
             return Object.assign(Object.assign({}, franchiseFound), { type: "franchise" });
+        });
+    }
+    count() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.franchise.count();
         });
     }
 }

@@ -22,7 +22,6 @@ const trackASingleShipment = (req, res) => __awaiter(void 0, void 0, void 0, fun
             //upsResponse,
             //fedexResponse,
         ]);
-        console.log(arrOfPromises);
         /*console.log(dhlResponse.data);
         console.log(upsResponse.data.trackResponse.shipment[0].package);
         console.log(fedexResponse.data.output.completeTrackResults[0].trackResults);*/

@@ -26,14 +26,36 @@ interface FranchiseUpdateData {
 }
 class Franchise {
   constructor(private readonly franchise: PrismaClient["franchise"]) {}
-  async getAll() {
-    const franchiseList = await this.franchise.findMany();
+  async getAll([offset = 0, limit = 20]: number[]) {
+    const franchiseList = await this.franchise.findMany({
+      skip: offset,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        ubication: true,
+        cellphone: true,
+        createdAt: true,
+        sales: {
+          select: {
+            id: true,
+          },
+        },
+        cashiers: {
+          select: {
+            name: true,
+            email: true,
+            id: true,
+          },
+        },
+      },
+    });
     if (!franchiseList) return null;
     return franchiseList;
   }
   async create(data: FranchiseData, isTokenRequired: boolean) {
     const { name, password, email, ubication, cellphone } = data;
-    console.log(data);
     const encryptedPassword = await encryptPassword(password);
     try {
       const newFranchise = await this.franchise.create({
@@ -52,7 +74,6 @@ class Franchise {
       const token = await generateToken(
         newFranchise.id,
         newFranchise.email,
-        newFranchise.password,
         "franchise"
       );
       return { ...newFranchise, type: "franchise", token: token };
@@ -84,10 +105,23 @@ class Franchise {
   }
   async get({ id, email }: { id?: string; email?: string }) {
     const franchiseFound = id
-      ? await this.franchise.findUnique({ where: { id: id } })
-      : await this.franchise.findUnique({ where: { email: email } });
+      ? await this.franchise.findUnique({
+          where: { id: id },
+          include: {
+            cashiers: true,
+          },
+        })
+      : await this.franchise.findUnique({
+          where: { email: email },
+          include: {
+            cashiers: true,
+          },
+        });
     if (!franchiseFound) return null;
     return { ...franchiseFound, type: "franchise" };
+  }
+  async count() {
+    return this.franchise.count();
   }
 }
 

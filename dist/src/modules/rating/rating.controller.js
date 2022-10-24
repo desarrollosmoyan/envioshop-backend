@@ -32,7 +32,7 @@ const getRating = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const dataToFormat = [...arrOfPromises];
         const dataFormated = [
             ...(0, utils_1.formatRatingResponse)(dataToFormat),
-            ESTAFETARating,
+            ...arrOfPromises[5],
         ].flatMap((element) => element);
         res.status(200).json({
             message: "Rating maked successfully",

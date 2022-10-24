@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import prisma from "../../database/prisma";
-import { checkIfUsernameOrEmailAlreadyExists } from "../../utils/utils";
 
 const ROLES = ["cashier", "admin", "franchise"];
 export const checkExistingUser = async (

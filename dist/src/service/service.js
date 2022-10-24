@@ -45,7 +45,7 @@ class ApiService extends Service {
     }
     getAuthorization() {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.headers["Authorization"];
+            return this.auth;
         });
     }
     setAuthorization() {
@@ -66,6 +66,7 @@ class ApiService extends Service {
                         },
                     });
                     this.headers["Authorization"] = `Bearer ${data.access_token}`;
+                    this.auth = data;
                 }
                 else if (this.serviceName === "REDPACK") {
                     console.log("entro");
@@ -83,8 +84,7 @@ class ApiService extends Service {
                             Authorization: `Basic ${Buffer.from(`${process.env.CLIENT_ID_REDPACK}:${process.env.CLIENT_SECRET_REDPACK}`).toString("base64")}`,
                         },
                     });
-                    console.log("pepe");
-                    console.log({ redpack: data });
+                    this.auth = data;
                     this.headers["Authorization"] = `Bearer ${data.access_token}`;
                 }
             }
@@ -152,10 +152,12 @@ class ApiService extends Service {
                 return new Error("This service doesn't have subServices");
             }
             const shippingInfo = this.subServices.shipping;
+            console.log(shippingInfo);
             const isPost = shippingInfo.method === "POST";
             let body;
             if (isPost) {
                 body = (0, utils_1.formatShippingBody)(data, this.serviceName);
+                console.log(body);
             }
             try {
                 const { data } = yield (0, axios_1.default)({
@@ -167,6 +169,7 @@ class ApiService extends Service {
                 return data;
             }
             catch (error) {
+                console.log(error);
                 throw error;
             }
         });

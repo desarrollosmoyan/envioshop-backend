@@ -24,12 +24,22 @@ export const PAQUETEEXPRESSService = new ApiService(PAQUETEEXPRESSSERVICE);
 
 FEDEXService.setAuthorization();
 REDPACKService.setAuthorization();
-/*export const redisConnection = connectRedis();
+export const redisConnection = connectRedis();
 connectRedis().then(async (redis) => {
-  await FEDEXService.setAuthorization();
-  const token = await FEDEXService.getAuthorization();
-  await redis.set("FEDEXTOKEN", token);
-});*/
+  const fedexToken = await redis.get("FEDEXTOKEN");
+  const redpackToken = await redis.get("REDPACKTOKEN");
+  if (!fedexToken || !redpackToken) {
+    await FEDEXService.setAuthorization();
+    await REDPACKService.setAuthorization();
+  }
+  /* const token = await FEDEXService.getAuthorization();
+  const rpToken = await REDPACKService.getAuthorization();
+  await redis.set("FEDEXTOKEN", JSON.stringify(token));
+  await redis.set("REDPACKTOKEN", JSON.stringify(rpToken));
+  const p = await redis.get("FEDEXTOKEN");
+  const t = await redis.get("REDPACKTOKEN");
+  console.log(JSON.parse(t as string));*/
+});
 
 server.listen(process.env.PORT, () => {
   console.log(`Listening server on port:${process.env.PORT}`);

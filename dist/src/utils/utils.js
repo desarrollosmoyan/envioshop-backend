@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateToken = exports.verifyPassword = exports.encryptPassword = exports.whichUserTypeIsIt = exports.loginUserByType = exports.createUserByType = exports.selectUserByRoleAndReturn = exports.formatRatingResponse = exports.formatShippingBody = exports.formatTrackingBody = exports.makeTrackRequest = exports.formatRatingBody = void 0;
+exports.generateToken = exports.verifyPassword = exports.encryptPassword = exports.whichUserTypeIsIt = exports.loginUserByType = exports.createUserByType = exports.selectUserByRoleAndReturn = exports.formatRatingResponse = exports.formatShippingResponse = exports.formatShippingBody = exports.formatTrackingBody = exports.makeTrackRequest = exports.formatRatingBody = void 0;
 const axios_1 = __importDefault(require("axios"));
 const admin_model_1 = __importDefault(require("../database/models/admin.model"));
 const cashier_model_1 = __importDefault(require("../database/models/cashier.model"));
@@ -25,6 +25,16 @@ const models = {
     cashier: cashier_model_1.default,
 };
 const formatRatingBody = (body, schema) => {
+    const shippingTime = new Date(Date.now());
+    const formattedTime = `${shippingTime.getFullYear()}-${shippingTime.getMonth() + 1 < 10
+        ? `0${shippingTime.getMonth() + 1}`
+        : shippingTime.getMonth() + 1}-${shippingTime.getDate() + 3}T${shippingTime.getHours() < 10
+        ? "0" + shippingTime.getHours()
+        : shippingTime.getHours()}:${shippingTime.getMinutes() < 10
+        ? "0" + shippingTime.getMinutes()
+        : shippingTime.getMinutes()}:${shippingTime.getSeconds() < 10
+        ? "0" + shippingTime.getSeconds()
+        : shippingTime.getSeconds()} GMT+06:00`;
     const fedexSchema = {
         accountNumber: {
             value: "781802379",
@@ -85,7 +95,7 @@ const formatRatingBody = (body, schema) => {
                 number: "980391677",
             },
         ],
-        plannedShippingDateAndTime: "2021-11-25T13:00:00GMT+00:00",
+        plannedShippingDateAndTime: "2022-11-25T13:00:00GMT+00:00",
         unitOfMeasurement: "metric",
         isCustomsDeclarable: true,
         monetaryAmount: [
@@ -95,8 +105,8 @@ const formatRatingBody = (body, schema) => {
                 currency: "MXN",
             },
         ],
-        requestAllValueAddedServices: false,
-        returnStandardProductsOnly: false,
+        requestAllValueAddedServices: true,
+        returnStandardProductsOnly: true,
         nextBusinessDay: false,
         packages: [
             {
@@ -309,11 +319,33 @@ const formatTrackingBody = (trackingNumber) => {
 };
 exports.formatTrackingBody = formatTrackingBody;
 const formatShippingBody = (data, serviceName) => {
-    const { receiverFullName, receiverCompanyName, receiverCountry, receiverPostalCode, receiverCellphone, receiverEmail, receiverAddress, receiverAddress2, receiverAddress3, receiverCity, receiverCounty, shipperFullName, shipperCompanyName, shipperCountry, shipperPostalCode, shipperCellphone, shipperEmail, shipperAddress, shipperAddress2, shipperAddress3, shipperCity, shipperCounty, packageSize, plannedShippingDate, } = data;
-    console.log(plannedShippingDate);
+    const { receiverFullName, receiverCompanyName, receiverCountry, receiverPostalCode, receiverCellphone, receiverEmail, receiverAddress, receiverAddress2, receiverAddress3, receiverCity, receiverCounty, shipperFullName, shipperCompanyName, shipperCountry, shipperPostalCode, shipperCellphone, shipperEmail, shipperAddress, shipperAddress2, shipperAddress3, shipperCity, shipperCounty, packageSize, plannedShippingDate, description, } = data;
+    const shippingTime = !plannedShippingDate
+        ? new Date(Date.now())
+        : plannedShippingDate;
+    console.log({
+        shippingTime: `${shippingTime.getFullYear()}-${shippingTime.getMonth() < 10
+            ? `0${shippingTime.getMonth()}`
+            : shippingTime.getMonth()}-${shippingTime.getDate() + 5}T${shippingTime.getHours() < 10
+            ? "0" + shippingTime.getHours()
+            : shippingTime.getHours()}:${shippingTime.getMinutes() < 10
+            ? "0" + shippingTime.getMinutes()
+            : shippingTime.getMinutes()}:${shippingTime.getSeconds() < 10
+            ? "0" + shippingTime.getSeconds()
+            : shippingTime.getSeconds()} GMT+06:00`,
+    });
+    const formattedTime = `${shippingTime.getFullYear()}-${shippingTime.getMonth() + 1 < 10
+        ? `0${shippingTime.getMonth() + 1}`
+        : shippingTime.getMonth() + 1}-${shippingTime.getDate() + 3}T${shippingTime.getHours() < 10
+        ? "0" + shippingTime.getHours()
+        : shippingTime.getHours()}:${shippingTime.getMinutes() < 10
+        ? "0" + shippingTime.getMinutes()
+        : shippingTime.getMinutes()}:${shippingTime.getSeconds() < 10
+        ? "0" + shippingTime.getSeconds()
+        : shippingTime.getSeconds()} GMT+06:00`;
     const dhlSchema = {
         productCode: "N",
-        plannedShippingDateAndTime: plannedShippingDate,
+        plannedShippingDateAndTime: formattedTime,
         pickup: {
             isRequested: false,
         },
@@ -345,11 +377,12 @@ const formatShippingBody = (data, serviceName) => {
                     countryCode: "MX",
                     postalCode: shipperPostalCode,
                     addressLine1: shipperAddress,
+                    countyName: shipperCounty,
                 },
                 contactInformation: {
                     phone: shipperCellphone,
                     companyName: shipperCompanyName,
-                    fullName: "Brayan Cardozo",
+                    fullName: shipperFullName,
                 },
             },
             receiverDetails: {
@@ -363,7 +396,7 @@ const formatShippingBody = (data, serviceName) => {
                 contactInformation: {
                     phone: receiverCellphone,
                     companyName: receiverCompanyName,
-                    fullName: "Arturo Artaza",
+                    fullName: shipperFullName,
                     email: receiverEmail,
                 },
             },
@@ -372,7 +405,7 @@ const formatShippingBody = (data, serviceName) => {
             unitOfMeasurement: "metric",
             incoterm: "DAP",
             isCustomsDeclarable: false,
-            description: "Teddy Bear",
+            description: description,
             packages: [
                 {
                     customerReferences: [
@@ -454,13 +487,221 @@ const formatShippingBody = (data, serviceName) => {
         openShipmentAction: "CREATE_PACKAGE",
         index: "Test1234",
     };
+    const redpackSchema = [
+        {
+            deliveryType: {
+                id: 2,
+            },
+            idClient: "119579",
+            nationalCurrency: "MXN",
+            origin: {
+                city: shipperCity,
+                company: shipperCompanyName,
+                country: shipperCountry,
+                name: shipperFullName,
+                email: shipperEmail,
+                originRfc: "XAXX010101000",
+                phones: [
+                    {
+                        areaCode: "",
+                        extension: "",
+                        phone: shipperCellphone,
+                    },
+                ],
+                reference3: "REFERENCIA 3",
+                state: "CDMX",
+                street: "CALZADA DE LOS ANGELES",
+                suburb: "SAN MARTIN",
+                zipCode: shipperPostalCode,
+            },
+            parcels: [
+                {
+                    description: "PRUEBAS DE DOCUMENTACION",
+                    piece: 1,
+                    weigth: packageSize.weight,
+                    high: packageSize.height,
+                    length: packageSize.length,
+                    width: packageSize.width,
+                },
+            ],
+            reference2: "REFERENCIA 2",
+            printType: 2,
+            serviceType: {
+                id: 1,
+            },
+            shippingType: {
+                id: 1,
+            },
+            shippingValue: 0,
+            target: {
+                city: receiverCity,
+                company: receiverCompanyName,
+                country: receiverCountry,
+                email: receiverEmail,
+                externalNumber: "25",
+                internalNumber: "1",
+                name: receiverFullName,
+                originRfc: "XAXX010101000",
+                phones: [
+                    {
+                        areaCode: "",
+                        extension: "",
+                        phone: "15305793699",
+                    },
+                ],
+                reference1: "REFERENCIA 1",
+                state: "ESTADO DE MEXICO",
+                street: "FERROCARRIL DE ACAMBARO",
+                zipCode: receiverPostalCode,
+            },
+        },
+    ];
+    const upsSchema = {
+        ShipmentRequest: {
+            Shipment: {
+                Description: "1206 PTR",
+                Shipper: {
+                    Name: shipperFullName,
+                    AttentionName: "AttentionName",
+                    Phone: {
+                        Number: "1234567890",
+                    },
+                    ShipperNumber: "ShipperNumber",
+                    EMailAddress: "",
+                    Address: {
+                        AddressLine: "AddressLine",
+                        City: "City",
+                        StateProvinceCode: "StateProvince",
+                        PostalCode: "PostalCode",
+                        CountryCode: "CountryCode",
+                    },
+                },
+                ShipTo: {
+                    Name: "ShipToName",
+                    AttentionName: "AttentionName",
+                    Phone: {
+                        Number: "1234567890",
+                    },
+                    EMailAddress: "",
+                    Address: {
+                        AddressLine: "AddressLine",
+                        City: "City",
+                        StateProvinceCode: "StateProvince",
+                        PostalCode: "PostalCode",
+                        CountryCode: "CountryCode",
+                    },
+                },
+                ShipFrom: {
+                    Name: "ShipperName",
+                    AttentionName: "AttentionName",
+                    Phone: {
+                        Number: "1234567890",
+                    },
+                    Address: {
+                        AddressLine: "AddressLine",
+                        City: "City",
+                        StateProvinceCode: "StateProvince",
+                        PostalCode: "PostalCode",
+                        CountryCode: "CountryCode",
+                    },
+                },
+                PaymentInformation: {
+                    ShipmentCharge: {
+                        Type: "01",
+                        BillShipper: {
+                            AccountNumber: "AccountNumber",
+                        },
+                    },
+                },
+                Service: {
+                    Code: "01",
+                    Description: "Expedited",
+                },
+                Package: [
+                    {
+                        Description: "International Goods",
+                        Packaging: {
+                            Code: "02",
+                        },
+                        PackageWeight: {
+                            UnitOfMeasurement: {
+                                Code: "LBS",
+                            },
+                            Weight: "10",
+                        },
+                        PackageServiceOptions: "",
+                    },
+                    {
+                        Description: "International Goods",
+                        Packaging: {
+                            Code: "02",
+                        },
+                        PackageWeight: {
+                            UnitOfMeasurement: {
+                                Code: "LBS",
+                            },
+                            Weight: "20",
+                        },
+                        PackageServiceOptions: "",
+                    },
+                ],
+                ItemizedChargesRequestedIndicator: "",
+                RatingMethodRequestedIndicator: "",
+                TaxInformationIndicator: "",
+                ShipmentRatingOptions: {
+                    NegotiatedRatesIndicator: "",
+                },
+            },
+            LabelSpecification: {
+                LabelImageFormat: {
+                    Code: "ZPL",
+                },
+            },
+        },
+    };
     if (serviceName === "FEDEX")
         return fedexSchema;
     if (serviceName === "DHL")
         return dhlSchema;
+    if (serviceName === "REDPACK")
+        return redpackSchema;
     return dhlSchema;
 };
 exports.formatShippingBody = formatShippingBody;
+const formatShippingResponse = (response, serviceName) => __awaiter(void 0, void 0, void 0, function* () {
+    let responseFormatted = {
+        package: {
+            destinyZipCode: "",
+            trackingNumber: "",
+            originZipCode: "",
+        },
+        document: {
+            type: "PDF",
+            content: "",
+        },
+        service: {
+            name: serviceName,
+            value: 0,
+        },
+    };
+    if (serviceName === "DHL") {
+        responseFormatted.package.trackingNumber = response.shipmentTrackingNumber;
+        responseFormatted.document.content = response.documents[0].content;
+    }
+    if (serviceName === "REDPACK") {
+        const serviceData = response[0];
+        responseFormatted.package.trackingNumber = serviceData.trackingNumber;
+        responseFormatted.package.destinyZipCode = serviceData.target.zipCode;
+        responseFormatted.package.originZipCode = serviceData.origin.zipCode;
+        responseFormatted.service.name = serviceData.serviceType.description;
+        responseFormatted.service.value = serviceData.shippingValue;
+        responseFormatted.document.type = "ZPL";
+        responseFormatted.document.content =
+            serviceData.parcels[0].extraData[0].barcode;
+    }
+    return responseFormatted;
+});
+exports.formatShippingResponse = formatShippingResponse;
 const iterateAndLevel = ({ output, products, RateResponse, body, values, }) => {
     if (output) {
         const arr = output.rateReplyDetails;
@@ -522,6 +763,7 @@ const iterateAndLevel = ({ output, products, RateResponse, body, values, }) => {
         return arr;
     }
     if (values) {
+        console.log(values);
         const arr = values.map((service) => {
             return {
                 serviceName: service.serviceType["serviceType"],
@@ -589,7 +831,7 @@ exports.createUserByType = createUserByType;
 const loginUserByType = (data) => __awaiter(void 0, void 0, void 0, function* () {
     const { password, email } = data;
     const type = yield (0, exports.whichUserTypeIsIt)(email);
-    console.log(type);
+    console.log(email);
     console.log(password);
     if (type === "none")
         throw new Error("User not created");
@@ -603,7 +845,7 @@ const loginUserByType = (data) => __awaiter(void 0, void 0, void 0, function* ()
     const hasPasswordMatched = yield (0, exports.verifyPassword)(password, hash);
     if (!hasPasswordMatched)
         throw new Error("Password incorrect");
-    const token = yield (0, exports.generateToken)(user.id, user.email, user.password, user.type);
+    const token = yield (0, exports.generateToken)(user.id, user.email, user.type);
     return { user, token: token };
 });
 exports.loginUserByType = loginUserByType;
@@ -629,7 +871,7 @@ const verifyPassword = (password, receivePassword) => __awaiter(void 0, void 0, 
     return yield (0, bcrypt_1.compare)(password, receivePassword);
 });
 exports.verifyPassword = verifyPassword;
-const generateToken = (id, email, password, type) => __awaiter(void 0, void 0, void 0, function* () {
-    return jsonwebtoken_1.default.sign({ id: id, email: email, password: password, type: type }, `${process.env.SECRET_KEY_TOKEN}`);
+const generateToken = (id, email, type) => __awaiter(void 0, void 0, void 0, function* () {
+    return jsonwebtoken_1.default.sign({ id: id, email: email, type: type }, `${process.env.SECRET_KEY_TOKEN}`);
 });
 exports.generateToken = generateToken;

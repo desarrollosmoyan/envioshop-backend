@@ -1,4 +1,4 @@
-import { Cashier, PrismaClient, Sales } from "@prisma/client";
+import { Cashier, Prisma, PrismaClient, Sales } from "@prisma/client";
 //import userModel from "../../modules/auth/model";
 import prisma from "../prisma";
 import { Turn as turnType } from "@prisma/client";
@@ -7,8 +7,8 @@ import cashierModel from "./cashier.model";
 export type TurnData = {
   startDate?: Date;
   endDate?: Date;
-  closeBalance?: number;
-  openBalance: number;
+  closeBalance?: Prisma.JsonObject;
+  openBalance: Prisma.JsonObject;
   cashierId: string;
   sales?: Sales[];
 };
@@ -21,8 +21,8 @@ type TurnEndData = {
 type TurnUpdateData = {
   startDate?: Date;
   endDate?: Date;
-  closeBalance?: number;
-  openBalance?: number;
+  closeBalance?: Prisma.JsonObject;
+  openBalance?: Prisma.JsonObject;
   cashierId?: string;
   sales?: Sales[];
 };
@@ -36,8 +36,13 @@ class Turn {
           startDate: new Date(Date.now()),
           endDate: null,
           openBalance: openBalance,
-          cashierId: cashierId,
-          closeBalance: null,
+          cashier: {
+            connect: {
+              id: cashierId,
+            },
+          },
+          lastCashierId: cashierId,
+          closeBalance: openBalance,
           sales: undefined,
         },
       });
@@ -80,7 +85,7 @@ class Turn {
     }
   }
 
-  async update({}) {}
+  async update(id: string, data: TurnUpdateData) {}
 }
 
 const turnModel = new Turn(prisma.turn);

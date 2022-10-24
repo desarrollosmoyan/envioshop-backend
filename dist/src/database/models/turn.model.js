@@ -27,8 +27,13 @@ class Turn {
                         startDate: new Date(Date.now()),
                         endDate: null,
                         openBalance: openBalance,
-                        cashierId: cashierId,
-                        closeBalance: null,
+                        cashier: {
+                            connect: {
+                                id: cashierId,
+                            },
+                        },
+                        lastCashierId: cashierId,
+                        closeBalance: openBalance,
                         sales: undefined,
                     },
                 });
@@ -80,7 +85,7 @@ class Turn {
             }
         });
     }
-    update({}) {
+    update(id, data) {
         return __awaiter(this, void 0, void 0, function* () { });
     }
 }

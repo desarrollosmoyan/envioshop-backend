@@ -34,40 +34,51 @@ model Franchise {
   cellphone String
   cashiers  Cashier[]
   sales     Sales[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Cashier {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  email       String     @unique
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  email       String    @unique
   password    String
-  name        String     @unique
-  Franchise   Franchise? @relation(fields: [franchiseId], references: [id])
-  franchiseId String?    @db.ObjectId
-  Turn        Turn[]
-  currentTurn String?    @db.ObjectId
+  name        String    @unique
+  franchise   Franchise @relation(fields: [franchiseId], references: [id])
+  franchiseId String    @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Turn        Turn?
 }
 
 model Sales {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  serviceName   serviceName
-  serviceType   String
-  shipmentPrice Float
-  shipmentPdf   String
-  Franchise     Franchise?  @relation(fields: [franchiseId], references: [id])
-  franchiseId   String?     @db.ObjectId
-  Turn          Turn?       @relation(fields: [turnId], references: [id])
-  turnId        String?     @db.ObjectId
+  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
+  serviceName         serviceName
+  serviceType         String
+  shipmentPrice       Float
+  shipmentPdf         String
+  shipmentDescription String
+  shipper             Json
+  receiver            Json
+  franchise           Franchise   @relation(fields: [franchiseId], references: [id])
+  franchiseId         String      @db.ObjectId
+  Turn                Turn?       @relation(fields: [turnId], references: [id])
+  turnId              String?     @db.ObjectId
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
 }
 
 model Turn {
-  id           String    @id @default(auto()) @map("_id") @db.ObjectId
-  openBalance  Float
-  closeBalance Float?
-  startDate    DateTime
-  endDate      DateTime?
-  sales        Sales[]
-  cashier      Cashier   @relation(fields: [cashierId], references: [id])
-  cashierId    String    @unique @db.ObjectId
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  openBalance   Json
+  closeBalance  Json?
+  startDate     DateTime
+  endDate       DateTime?
+  sales         Sales[]
+  cashier       Cashier?  @relation(fields: [cashierId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  cashierId     String?   @unique @db.ObjectId
+  lastCashierId String
 }
 
 model User {

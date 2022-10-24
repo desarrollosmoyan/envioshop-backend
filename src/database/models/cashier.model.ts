@@ -15,8 +15,8 @@ type CashierUpdateData = {
     name?: string;
     password?: string;
     email?: string;
-    franchiseId?: string;
-    currentTurn?: string;
+    franchiseId: undefined;
+    turnHasEnded?: boolean;
   };
 };
 class Cashier {
@@ -29,7 +29,9 @@ class Cashier {
         name: name,
         password: encryptedPassword,
         email: email,
-        franchiseId: franchiseId,
+        franchise: {
+          connect: { id: franchiseId },
+        },
       },
     });
     if (!newCashier) return null;
@@ -37,7 +39,6 @@ class Cashier {
     const token = await generateToken(
       newCashier.id,
       newCashier.email,
-      newCashier.password,
       "cashier"
     );
     return { ...newCashier, type: "cashier", token: token };
@@ -56,12 +57,29 @@ class Cashier {
   }
   async update(updateData: CashierUpdateData) {
     const { data } = updateData;
+    if (data.turnHasEnded) {
+      const cashier = await this.cashier.update({
+        where: {
+          id: updateData.id,
+        },
+        data: {
+          Turn: {
+            disconnect: true,
+          },
+        },
+      });
+      return cashier;
+    }
+    const { franchiseId, ...others } = data;
     const updatedCashier = await this.cashier.update({
       where: {
         id: updateData.id,
       },
       data: {
-        ...data,
+        ...others,
+        franchise: {
+          connect: { id: data.franchiseId },
+        },
       },
     });
     if (!updatedCashier) return null;
@@ -69,14 +87,53 @@ class Cashier {
   }
   async get({ id, email }: { id?: string; email?: string }) {
     const cashierFound = id
-      ? await this.cashier.findUnique({ where: { id: id } })
+      ? await this.cashier.findUnique({
+          where: { id: id },
+          include: {
+            Turn: true,
+          },
+        })
       : await this.cashier.findUnique({ where: { email: email } });
     if (!cashierFound) return null;
     return { ...cashierFound, type: "cashier" };
   }
 
-  async getAll() {
-    const cashierList = await this.cashier.findMany();
+  async getAll([offset = 0, limit = 20]: number[], id: string | undefined) {
+    if (id) {
+      const cashierList = await this.cashier.findMany({
+        skip: offset,
+        take: limit,
+        where: {
+          franchise: {
+            id: id,
+          },
+        },
+        select: {
+          name: true,
+          email: true,
+          id: true,
+          createdAt: true,
+        },
+      });
+      if (!cashierList) return null;
+      return cashierList;
+    }
+    const cashierList = await this.cashier.findMany({
+      skip: offset,
+      take: limit,
+      select: {
+        name: true,
+        email: true,
+        id: true,
+        createdAt: true,
+        franchise: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
     if (!cashierList) return null;
     return cashierList;
   }
@@ -89,6 +146,9 @@ class Cashier {
     });
     if (!deletedCashier) return null;
     return deletedCashier;
+  }
+  async count() {
+    return this.cashier.count();
   }
 }
 

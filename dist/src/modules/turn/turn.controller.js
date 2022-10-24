@@ -17,28 +17,29 @@ const cashier_model_1 = __importDefault(require("../../database/models/cashier.m
 const turn_model_1 = __importDefault(require("../../database/models/turn.model"));
 const assignTurn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { cashierId, openBalance } = req.body;
+        const cashierId = req.params.id;
+        const { openBalance } = req.body;
         const turn = yield turn_model_1.default.create({ cashierId, openBalance });
         if (!turn)
             return res.status(401).json({ message: "Can't create turn" });
         res.status(200).json({ turn: turn, message: "Turn created successfully" });
     }
     catch (error) {
+        console.log(error);
         res.status(404).json({ message: "Something is wrong" });
     }
 });
 exports.assignTurn = assignTurn;
 const endTurn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { turnId, closeBalance } = req.body;
+        const turnId = req.params.id;
+        const { closeBalance } = req.body;
         const turn = yield turn_model_1.default.end(turnId, closeBalance);
         if (!turn)
             return res.status(401).json({ message: "Can't end turn" });
         cashier_model_1.default.update({
             id: turn.cashierId,
-            data: {
-                currentTurn: undefined,
-            },
+            data: { turnHasEnded: true },
         });
         res.status(200).json({ turn: turn, message: "Turn ended successfully" });
     }

@@ -12,6 +12,7 @@ export abstract class Service {
   public serviceName: string;
   public subServices?: subService;
   public headers: any;
+  public auth: any;
   constructor(serviceData: serviceData) {
     const { baseUrl, headers, serviceName } = serviceData;
     this.baseUrl = baseUrl;
@@ -43,7 +44,7 @@ export class ApiService extends Service {
     this.subServices = subServices;
   }
   async getAuthorization() {
-    return this.headers["Authorization"];
+    return this.auth;
   }
   async setAuthorization(): Promise<any> {
     try {
@@ -62,6 +63,7 @@ export class ApiService extends Service {
           },
         });
         this.headers["Authorization"] = `Bearer ${data.access_token}`;
+        this.auth = data;
       } else if (this.serviceName === "REDPACK") {
         console.log("entro");
         const body = qs.stringify({
@@ -80,8 +82,7 @@ export class ApiService extends Service {
             ).toString("base64")}`,
           },
         });
-        console.log("pepe");
-        console.log({ redpack: data });
+        this.auth = data;
         this.headers["Authorization"] = `Bearer ${data.access_token}`;
       }
     } catch (err: any) {
@@ -141,10 +142,12 @@ export class ApiService extends Service {
       return new Error("This service doesn't have subServices");
     }
     const shippingInfo = this.subServices.shipping;
+    console.log(shippingInfo);
     const isPost = shippingInfo.method === "POST";
     let body;
     if (isPost) {
       body = formatShippingBody(data, this.serviceName);
+      console.log(body);
     }
     try {
       const { data } = await axios({
@@ -156,6 +159,7 @@ export class ApiService extends Service {
 
       return data;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }

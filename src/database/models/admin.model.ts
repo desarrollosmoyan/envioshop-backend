@@ -19,12 +19,7 @@ class Admin {
         password: encryptedPassword,
       },
     });
-    const token = await generateToken(
-      newAdmin.id,
-      newAdmin.email,
-      newAdmin.password,
-      "admin"
-    );
+    const token = await generateToken(newAdmin.id, newAdmin.email, "admin");
     if (!newAdmin) return null;
     return { ...newAdmin, token: token };
   }

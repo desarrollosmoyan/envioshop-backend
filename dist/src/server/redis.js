@@ -12,7 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectRedis = void 0;
 const redis_1 = require("redis");
 const connectRedis = () => __awaiter(void 0, void 0, void 0, function* () {
-    const client = (0, redis_1.createClient)();
+    const client = (0, redis_1.createClient)({
+        url: "rediss://default:AVNS_ij75WaV6YFD7gCAV5yc@redisbd-do-user-12128300-0.b.db.ondigitalocean.com:25061",
+    });
+    client.on("ready", () => console.log("Redis DB connected successfully"));
     client.on("error", (error) => console.log(error));
     yield client.connect();
     return client;

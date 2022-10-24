@@ -12,11 +12,6 @@ const allowedRoles = {
   franchise: false,
 };
 
-const models = {
-  admin: adminModel,
-  cashier: cashierModel,
-  franchise: franchiseModel,
-};
 export const checkJWT = async (
   req: Request,
   res: Response,
@@ -25,23 +20,28 @@ export const checkJWT = async (
   if (!req.headers.authorization)
     return res.status(401).send({ message: "Non token found" });
   const token = req.headers.authorization.replace("Bearer ", "");
-  console.log(token);
   if (!token) {
     return res.status(401).send({ message: "Non token found" });
   }
   let payload;
   try {
     payload = jwt.verify(token, `${process.env.SECRET_KEY_TOKEN}`);
+    req.token = token;
   } catch (err) {
     if (err instanceof jwt.JsonWebTokenError) {
+      console.log(err);
       return res.status(401).send({ message: "Unauthorized" });
     }
     return res.status(400).send({ message: "Error" });
   }
-  const roleName = (payload as JwtPayload).type;
-  if (allowedRoles[roleName as keyof typeof allowedRoles]) {
+  if (payload) {
     next();
     return;
   }
+  /* const roleName = (payload as JwtPayload).type;
+  if (allowedRoles[roleName as keyof typeof allowedRoles]) {
+    next();
+    return;
+  }*/
   return res.status(403).json({ message: "Unauthorized" });
 };

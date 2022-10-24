@@ -1,7 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import prisma from "../prisma";
 
-enum serviceName {
+export enum serviceName {
   FEDEX = "FEDEX",
   DHL = "DHL",
   REDPACK = "REDPACK",
@@ -12,6 +12,9 @@ type SalesData = {
   serviceName: serviceName;
   serviceType: string;
   shipmentPrice: number;
+  shipmentDescription: string;
+  shipper: Prisma.JsonObject;
+  receiver: Prisma.JsonObject;
   shipmentPdf: string;
   franchiseId: string;
   turnId: string;
@@ -20,17 +23,89 @@ class Sales {
   constructor(private readonly sale: PrismaClient["sales"]) {}
   async create(data: SalesData) {
     try {
+      const { franchiseId, turnId, ...newData } = data;
       const newSale = await this.sale.create({
         data: {
-          ...data,
+          ...newData,
+          franchise: {
+            connect: {
+              id: franchiseId,
+            },
+          },
+          Turn: {
+            connect: { id: turnId },
+          },
         },
       });
       if (!newSale) return null;
       return newSale;
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
-  async get() {}
-  async getAll() {}
+  async get(id: string) {
+    try {
+      const sale = await this.sale.findUnique({
+        where: {
+          id: id,
+        },
+      });
+      if (!sale) return null;
+      return sale;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getAll([offset, limit]: number[]) {
+    try {
+      const saleList = await this.sale.findMany({
+        skip: offset,
+        take: limit,
+        include: {
+          franchise: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+          Turn: {
+            select: {
+              id: true,
+              createdAt: true,
+              cashier: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!saleList) return null;
+      return saleList;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async deleteOne() {}
+  async getOneFromDate(lte: Date, gte: Date) {
+    try {
+      const saleList = await this.sale.count({
+        where: {
+          createdAt: {
+            lte: lte,
+            gte: gte,
+          },
+        },
+      });
+      if (!saleList) return null;
+      return saleList;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 const salesModel = new Sales(prisma.sales);
+export default salesModel;

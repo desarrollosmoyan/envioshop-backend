@@ -1,0 +1,103 @@
+{
+    "ShipmentRequest": {
+        "Shipment": {
+            "Description": "1206 PTR",
+            "Shipper": {
+                "Name": "ShipperName",
+                "AttentionName": "AttentionName",
+                "Phone": {
+                    "Number": "1234567890"
+                },
+                "ShipperNumber": "ShipperNumber",
+                "EMailAddress":"",
+                "Address": {
+                    "AddressLine": "AddressLine",
+                    "City": "City",
+                    "StateProvinceCode": "StateProvince",
+                    "PostalCode": "PostalCode",
+                    "CountryCode": "CountryCode"
+                }
+            },
+            "ShipTo": {
+                "Name": "ShipToName",
+                "AttentionName": "AttentionName",
+                "Phone": {
+                    "Number": "1234567890"
+                },
+                "EMailAddress":"",
+                "Address": {
+                    "AddressLine": "AddressLine",
+                    "City": "City",
+                    "StateProvinceCode": "StateProvince",
+                    "PostalCode": "PostalCode",
+                    "CountryCode": "CountryCode"
+                }
+            },
+            "ShipFrom": {
+                "Name": "ShipperName",
+                "AttentionName": "AttentionName",
+                "Phone": {
+                    "Number": "1234567890"
+                },
+                "Address": {
+                    "AddressLine": "AddressLine",
+                    "City": "City",
+                    "StateProvinceCode": "StateProvince",
+                    "PostalCode": "PostalCode",
+                    "CountryCode": "CountryCode"
+                }
+            },
+            "PaymentInformation": {
+                "ShipmentCharge": {
+                    "Type": "01",
+                    "BillShipper": {
+                        "AccountNumber": "AccountNumber"
+                    }
+                }
+            },
+            "Service": {
+                "Code": "01",
+                "Description": "Expedited"
+            },
+            "Package": [
+                {
+                    "Description": "International Goods",
+                    "Packaging": {
+                        "Code": "02"
+                    },
+                    "PackageWeight": {
+                        "UnitOfMeasurement": {
+                            "Code": "LBS"
+                        },
+                        "Weight": "10"
+                    },
+                    "PackageServiceOptions": ""
+                },
+                {
+                    "Description": "International Goods",
+                    "Packaging": {
+                        "Code": "02"
+                    },
+                    "PackageWeight": {
+                        "UnitOfMeasurement": {
+                            "Code": "LBS"
+                        },
+                        "Weight": "20"
+                    },
+                    "PackageServiceOptions": ""
+                }
+            ],
+            "ItemizedChargesRequestedIndicator": "",
+            "RatingMethodRequestedIndicator": "",
+            "TaxInformationIndicator": "",
+            "ShipmentRatingOptions": {
+                "NegotiatedRatesIndicator": ""
+            }
+        },
+        "LabelSpecification": {
+            "LabelImageFormat": {
+                "Code": "ZPL"
+            }
+        }
+    }
+}

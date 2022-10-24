@@ -13,7 +13,6 @@ export const trackASingleShipment = async (req: Request, res: Response) => {
       //upsResponse,
       //fedexResponse,
     ]);
-    console.log(arrOfPromises);
     /*console.log(dhlResponse.data);
     console.log(upsResponse.data.trackResponse.shipment[0].package);
     console.log(fedexResponse.data.output.completeTrackResults[0].trackResults);*/

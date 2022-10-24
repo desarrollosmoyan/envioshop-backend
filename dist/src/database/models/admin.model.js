@@ -29,7 +29,7 @@ class Admin {
                     password: encryptedPassword,
                 },
             });
-            const token = yield (0, utils_1.generateToken)(newAdmin.id, newAdmin.email, newAdmin.password, "admin");
+            const token = yield (0, utils_1.generateToken)(newAdmin.id, newAdmin.email, "admin");
             if (!newAdmin)
                 return null;
             return Object.assign(Object.assign({}, newAdmin), { token: token });

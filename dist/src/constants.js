@@ -69,7 +69,7 @@ exports.UPS = {
             method: "GET",
         },
         picking: {
-            url: "",
+            url: "/ship/v1/shipments",
             method: "",
         },
         shipping: {
@@ -98,8 +98,8 @@ exports.REDPACK = {
             method: "",
         },
         shipping: {
-            url: "apiqa2.redpack.com.mx:5600/redpack/automatic-documentation",
-            method: "",
+            url: "apiqa.redpack.com.mx:5600/redpack/automatic-documentation",
+            method: "POST",
         },
     },
 };
