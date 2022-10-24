@@ -123,6 +123,23 @@ class Franchise {
   async count() {
     return this.franchise.count();
   }
+
+  async countForDate(lte: Date, gte: Date) {
+    try {
+      const franchiseCount = await this.franchise.count({
+        where: {
+          createdAt: {
+            lte: lte,
+            gte: gte,
+          },
+        },
+      });
+      if (!franchiseCount) return null;
+      return franchiseCount;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 const franchiseModel = new Franchise(prisma.franchise);

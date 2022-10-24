@@ -115,7 +115,7 @@ class Sales {
     deleteOne() {
         return __awaiter(this, void 0, void 0, function* () { });
     }
-    getOneFromDate(lte, gte) {
+    countForDate(lte, gte) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const saleList = yield this.sale.count({
@@ -129,6 +129,28 @@ class Sales {
                 if (!saleList)
                     return null;
                 return saleList;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    countTotalEarned(lte, gte) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const totalEarned = yield this.sale.findMany({
+                    where: {
+                        createdAt: {
+                            lte: lte,
+                            gte: gte,
+                        },
+                    },
+                    select: {
+                        shipmentPrice: true,
+                    },
+                });
+                const total = totalEarned.map((item) => Object.values(item)[0]);
+                return total.reduce((prev, current) => prev + current, 0);
             }
             catch (error) {
                 throw error;

@@ -171,6 +171,26 @@ class Cashier {
             return this.cashier.count();
         });
     }
+    countForDate(lte, gte) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const cashierCount = yield this.cashier.count({
+                    where: {
+                        createdAt: {
+                            lte: lte,
+                            gte: gte,
+                        },
+                    },
+                });
+                if (!cashierCount)
+                    return null;
+                return cashierCount;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 const cashierModel = new Cashier(prisma_1.default.cashier);
 exports.default = cashierModel;

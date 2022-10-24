@@ -20,6 +20,7 @@ export const checkJWT = async (
   if (!req.headers.authorization)
     return res.status(401).send({ message: "Non token found" });
   const token = req.headers.authorization.replace("Bearer ", "");
+
   if (!token) {
     return res.status(401).send({ message: "Non token found" });
   }

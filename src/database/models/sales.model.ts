@@ -89,7 +89,7 @@ class Sales {
     }
   }
   async deleteOne() {}
-  async getOneFromDate(lte: Date, gte: Date) {
+  async countForDate(lte: Date, gte: Date) {
     try {
       const saleList = await this.sale.count({
         where: {
@@ -101,6 +101,25 @@ class Sales {
       });
       if (!saleList) return null;
       return saleList;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async countTotalEarned(lte: Date, gte: Date) {
+    try {
+      const totalEarned = await this.sale.findMany({
+        where: {
+          createdAt: {
+            lte: lte,
+            gte: gte,
+          },
+        },
+        select: {
+          shipmentPrice: true,
+        },
+      });
+      const total = totalEarned.map((item) => Object.values(item)[0]);
+      return total.reduce((prev, current) => prev + current, 0);
     } catch (error) {
       throw error;
     }

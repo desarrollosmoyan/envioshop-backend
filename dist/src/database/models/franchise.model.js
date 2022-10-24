@@ -129,6 +129,26 @@ class Franchise {
             return this.franchise.count();
         });
     }
+    countForDate(lte, gte) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const franchiseCount = yield this.franchise.count({
+                    where: {
+                        createdAt: {
+                            lte: lte,
+                            gte: gte,
+                        },
+                    },
+                });
+                if (!franchiseCount)
+                    return null;
+                return franchiseCount;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 const franchiseModel = new Franchise(prisma_1.default.franchise);
 exports.default = franchiseModel;

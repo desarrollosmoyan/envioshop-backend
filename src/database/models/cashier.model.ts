@@ -150,6 +150,22 @@ class Cashier {
   async count() {
     return this.cashier.count();
   }
+  async countForDate(lte: Date, gte: Date) {
+    try {
+      const cashierCount = await this.cashier.count({
+        where: {
+          createdAt: {
+            lte: lte,
+            gte: gte,
+          },
+        },
+      });
+      if (!cashierCount) return null;
+      return cashierCount;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 const cashierModel = new Cashier(prisma.cashier);
