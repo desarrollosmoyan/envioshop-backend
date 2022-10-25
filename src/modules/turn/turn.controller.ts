@@ -20,10 +20,6 @@ export const endTurn = async (req: Request, res: Response) => {
     const { closeBalance } = req.body;
     const turn = await turnModel.end(turnId, closeBalance);
     if (!turn) return res.status(401).json({ message: "Can't end turn" });
-    cashierModel.update({
-      id: turn.cashierId as string,
-      data: { turnHasEnded: true },
-    });
     res.status(200).json({ turn: turn, message: "Turn ended successfully" });
   } catch (error) {
     res.status(404).json({ message: "" });

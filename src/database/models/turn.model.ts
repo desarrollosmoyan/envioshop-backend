@@ -61,6 +61,9 @@ class Turn {
         data: {
           endDate: new Date(Date.now()),
           closeBalance: closeBalance,
+          cashier: {
+            disconnect: true,
+          },
         },
       });
       if (!turnUpdated) return null;
