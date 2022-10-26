@@ -43,7 +43,7 @@ export class ApiService extends Service {
   setSubServices(subServices: any): void {
     this.subServices = subServices;
   }
-  async getAuthorization() {
+  getAuthorization() {
     return this.auth;
   }
   async setAuthorization(): Promise<any> {
