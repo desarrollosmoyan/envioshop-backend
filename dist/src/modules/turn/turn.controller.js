@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.endTurn = exports.assignTurn = void 0;
-const cashier_model_1 = __importDefault(require("../../database/models/cashier.model"));
 const turn_model_1 = __importDefault(require("../../database/models/turn.model"));
 const assignTurn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -37,10 +36,6 @@ const endTurn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const turn = yield turn_model_1.default.end(turnId, closeBalance);
         if (!turn)
             return res.status(401).json({ message: "Can't end turn" });
-        cashier_model_1.default.update({
-            id: turn.cashierId,
-            data: { turnHasEnded: true },
-        });
         res.status(200).json({ turn: turn, message: "Turn ended successfully" });
     }
     catch (error) {

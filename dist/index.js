@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.redisConnection = exports.PAQUETEEXPRESSService = exports.ESTAFETAService = exports.REDPACKService = exports.UPSService = exports.DHLService = exports.FEDEXService = void 0;
-require("dotenv").config();
+require('dotenv').config();
 //import { RedisClientType } from "@redis/client";
 //import { createClient } from "redis";
 const constants_1 = require("./src/constants");
@@ -30,19 +30,22 @@ exports.FEDEXService.setAuthorization();
 exports.REDPACKService.setAuthorization();
 exports.redisConnection = (0, redis_1.connectRedis)();
 (0, redis_1.connectRedis)().then((redis) => __awaiter(void 0, void 0, void 0, function* () {
-    const fedexToken = yield redis.get("FEDEXTOKEN");
-    const redpackToken = yield redis.get("REDPACKTOKEN");
+    const fedexToken = yield redis.get('FEDEXTOKEN');
+    const redpackToken = yield redis.get('REDPACKTOKEN');
     if (!fedexToken || !redpackToken) {
         yield exports.FEDEXService.setAuthorization();
         yield exports.REDPACKService.setAuthorization();
     }
-    /* const token = await FEDEXService.getAuthorization();
-    const rpToken = await REDPACKService.getAuthorization();
-    await redis.set("FEDEXTOKEN", JSON.stringify(token));
-    await redis.set("REDPACKTOKEN", JSON.stringify(rpToken));
-    const p = await redis.get("FEDEXTOKEN");
-    const t = await redis.get("REDPACKTOKEN");
-    console.log(JSON.parse(t as string));*/
+    const REDPACK_REFRESHER = () => __awaiter(void 0, void 0, void 0, function* () { return exports.REDPACKService.setAuthorization(); });
+    const FEDEX_REFRESHER = () => __awaiter(void 0, void 0, void 0, function* () { return exports.FEDEXService.setAuthorization(); });
+    setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield REDPACK_REFRESHER();
+        console.log({ Redpack: exports.REDPACKService.getAuthorization().access_token });
+    }), 10000);
+    setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield FEDEX_REFRESHER();
+        console.log({ Fedex: exports.FEDEXService.getAuthorization().access_token });
+    }), 20000);
 }));
 server_1.default.listen(process.env.PORT, () => {
     console.log(`Listening server on port:${process.env.PORT}`);
