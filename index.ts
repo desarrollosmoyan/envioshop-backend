@@ -32,6 +32,7 @@ connectRedis().then(async (redis) => {
     await FEDEXService.setAuthorization();
     await REDPACKService.setAuthorization();
   }
+  console.log(redpackToken);
   /* const token = await FEDEXService.getAuthorization();
   const rpToken = await REDPACKService.getAuthorization();
   await redis.set("FEDEXTOKEN", JSON.stringify(token));

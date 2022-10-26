@@ -103,6 +103,14 @@ class Cashier {
                     where: { id: id },
                     include: {
                         Turn: true,
+                        franchise: {
+                            select: {
+                                id: true,
+                                email: true,
+                                name: true,
+                                ubication: true,
+                            },
+                        },
                     },
                 })
                 : yield this.cashier.findUnique({ where: { email: email } });

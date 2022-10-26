@@ -36,6 +36,7 @@ exports.redisConnection = (0, redis_1.connectRedis)();
         yield exports.FEDEXService.setAuthorization();
         yield exports.REDPACKService.setAuthorization();
     }
+    console.log(redpackToken);
     /* const token = await FEDEXService.getAuthorization();
     const rpToken = await REDPACKService.getAuthorization();
     await redis.set("FEDEXTOKEN", JSON.stringify(token));

@@ -22,6 +22,7 @@ const signupHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const newUser = yield (0, utils_1.createUserByType)(data, type);
         if (!newUser)
             return res.status(401).json({ message: "" });
+        console.log(newUser);
         res.status(200).send(Object.assign({ message: "User created successfully" }, newUser));
     }
     catch (error) {
