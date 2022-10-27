@@ -63,7 +63,6 @@ const createShipment = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const info = yield (0, utils_1.formatShippingResponse)(data, company);
         console.log(req.body);
         if (info.document.type === "ZPL") {
-            console.log("entro");
             const { data } = yield (0, axios_1.default)({
                 method: "POST",
                 responseEncoding: "binary",
@@ -93,6 +92,7 @@ const createShipment = (req, res) => __awaiter(void 0, void 0, void 0, function*
             },
             franchiseId: franchiseId,
             turnId: turnId,
+            shipmentTrackingNumber: info.package.trackingNumber,
         });
         if (data)
             return res.status(200).json({ shipment: info });

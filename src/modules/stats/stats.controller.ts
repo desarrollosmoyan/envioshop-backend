@@ -34,7 +34,10 @@ export const getStats = async (req: Request, res: Response) => {
       }
       return e;
     });*/
-    const recentShipments = await salesModel.getAll([0, 50]);
+    const recentShipments = await salesModel.getRecentShipments(
+      today,
+      prevDays
+    );
     res.status(200).json({
       message: "Stats getted successfully",
       totalCashiers: totalCashiers,

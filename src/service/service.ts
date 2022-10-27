@@ -7,6 +7,8 @@ import {
 import puppeter, { Browser, Page } from "puppeteer";
 import qs from "qs";
 import { performance } from "perf_hooks";
+import fs from "fs";
+const urlFile = require("../../urls.json");
 export abstract class Service {
   public baseUrl: string;
   public serviceName: string;
@@ -162,6 +164,23 @@ export class ApiService extends Service {
       console.log(error);
       throw error;
     }
+  }
+
+  async setBaseUrl(newUrl: string) {
+    const urlMap = JSON.parse(urlFile);
+    const c = this.checkIfBaseUrlHasChanged();
+    if (c) {
+      this.baseUrl = urlMap[this.serviceName];
+      return;
+    }
+    this.baseUrl = newUrl;
+  }
+  checkIfBaseUrlHasChanged() {
+    const urlMap = JSON.parse(urlFile);
+    if (urlMap[this.serviceName] === this.baseUrl) {
+      return false;
+    }
+    return true;
   }
 }
 

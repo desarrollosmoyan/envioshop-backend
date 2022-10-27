@@ -45,7 +45,7 @@ const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
           }
           return e;
         });*/
-        const recentShipments = yield sales_model_1.default.getAll([0, 50]);
+        const recentShipments = yield sales_model_1.default.getRecentShipments(today, prevDays);
         res.status(200).json({
             message: "Stats getted successfully",
             totalCashiers: totalCashiers,

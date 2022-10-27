@@ -18,6 +18,7 @@ const utils_1 = require("../utils/utils");
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const qs_1 = __importDefault(require("qs"));
 const perf_hooks_1 = require("perf_hooks");
+const urlFile = require("../../urls.json");
 class Service {
     constructor(serviceData) {
         const { baseUrl, headers, serviceName } = serviceData;
@@ -171,6 +172,24 @@ class ApiService extends Service {
                 throw error;
             }
         });
+    }
+    setBaseUrl(newUrl) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const urlMap = JSON.parse(urlFile);
+            const c = this.checkIfBaseUrlHasChanged();
+            if (c) {
+                this.baseUrl = urlMap[this.serviceName];
+                return;
+            }
+            this.baseUrl = newUrl;
+        });
+    }
+    checkIfBaseUrlHasChanged() {
+        const urlMap = JSON.parse(urlFile);
+        if (urlMap[this.serviceName] === this.baseUrl) {
+            return false;
+        }
+        return true;
     }
 }
 exports.ApiService = ApiService;

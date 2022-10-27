@@ -158,6 +158,43 @@ class Sales {
             }
         });
     }
+    getRecentShipments(lte, gte) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const saleList = yield this.sale.findMany({
+                    where: {
+                        createdAt: {
+                            lte: lte,
+                            gte: gte,
+                        },
+                    },
+                    include: {
+                        franchise: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                        Turn: {
+                            select: {
+                                cashier: {
+                                    select: {
+                                        name: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    take: 5,
+                });
+                if (!saleList)
+                    return null;
+                return saleList;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 const salesModel = new Sales(prisma_1.default.sales);
 exports.default = salesModel;

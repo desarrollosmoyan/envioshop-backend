@@ -33,7 +33,6 @@ export const createShipment = async (req: Request, res: Response) => {
     const info = await formatShippingResponse(data, company);
     console.log(req.body);
     if (info.document.type === "ZPL") {
-      console.log("entro");
       const { data } = await axios({
         method: "POST",
         responseEncoding: "binary",
@@ -63,6 +62,7 @@ export const createShipment = async (req: Request, res: Response) => {
       },
       franchiseId: franchiseId,
       turnId: turnId,
+      shipmentTrackingNumber: info.package.trackingNumber,
     });
     if (data) return res.status(200).json({ shipment: info });
   } catch (error: any) {

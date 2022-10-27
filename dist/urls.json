@@ -1,0 +1,8 @@
+{
+    "FEDEX": "https://apis.fedex.com",
+    "UPS": "https://wwwcie.ups.com",
+    "REDPACK": "",
+    "DHL": "https://express.api.dhl.com/mydhlapi/test",
+    "ESTAFETA": "https://www.estafeta.com/",
+    "PAQUETEEXPRESS": "https://www.paquetexpress.com.mx/servicios"
+}

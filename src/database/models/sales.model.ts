@@ -13,6 +13,7 @@ type SalesData = {
   serviceType: string;
   shipmentPrice: number;
   shipmentDescription: string;
+  shipmentTrackingNumber: string;
   shipper: Prisma.JsonObject;
   receiver: Prisma.JsonObject;
   shipmentPdf: string;
@@ -121,6 +122,40 @@ class Sales {
       });
       const total = totalEarned.map((item) => Object.values(item)[0]);
       return total.reduce((prev, current) => prev + current, 0);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getRecentShipments(lte: Date, gte: Date) {
+    try {
+      const saleList = await this.sale.findMany({
+        where: {
+          createdAt: {
+            lte: lte,
+            gte: gte,
+          },
+        },
+        include: {
+          franchise: {
+            select: {
+              name: true,
+            },
+          },
+          Turn: {
+            select: {
+              cashier: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        take: 5,
+      });
+      if (!saleList) return null;
+      return saleList;
     } catch (error) {
       throw error;
     }
