@@ -14,6 +14,7 @@ export const signupHandler = async (req: Request, res: Response) => {
       req.body;
     const newUser = await createUserByType(data, type);
     if (!newUser) return res.status(401).json({ message: "" });
+    console.log(newUser);
     res.status(200).send({
       message: "User created successfully",
       ...newUser,

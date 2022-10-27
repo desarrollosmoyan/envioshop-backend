@@ -41,6 +41,7 @@ class Sales {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { franchiseId, turnId } = data, newData = __rest(data, ["franchiseId", "turnId"]);
+                console.log(data);
                 const newSale = yield this.sale.create({
                     data: Object.assign(Object.assign({}, newData), { franchise: {
                             connect: {

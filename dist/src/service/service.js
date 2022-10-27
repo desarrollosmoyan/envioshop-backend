@@ -44,9 +44,7 @@ class ApiService extends Service {
         this.subServices = subServices;
     }
     getAuthorization() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.auth;
-        });
+        return this.auth;
     }
     setAuthorization() {
         return __awaiter(this, void 0, void 0, function* () {

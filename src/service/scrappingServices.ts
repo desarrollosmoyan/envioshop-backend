@@ -1,5 +1,6 @@
 import { Service } from "./service";
 import puppeteer, { Browser, Page } from "puppeteer";
+import path from "path";
 
 export class ScrappingService2 extends Service {
   browser?: Browser;
@@ -10,7 +11,7 @@ export class ScrappingService2 extends Service {
   }
   private async init() {
     this.browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium-browser",
+      executablePath: `${path.join(__dirname, "/usr/bin/chromium-browser")}`,
     });
     this.page = await this.browser.newPage();
     await this.page.goto(this.baseUrl);
