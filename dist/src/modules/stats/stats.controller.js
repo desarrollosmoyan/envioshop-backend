@@ -46,6 +46,9 @@ const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
           return e;
         });*/
         const recentShipments = yield sales_model_1.default.getRecentShipments(today, prevDays);
+        const topFranchises = yield franchise_model_1.default.getTopFranchises();
+        if (!topFranchises)
+            throw new Error("error");
         res.status(200).json({
             message: "Stats getted successfully",
             totalCashiers: totalCashiers,
@@ -53,6 +56,7 @@ const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             totalShipments: totalShipments,
             totalEarned: totalEarned,
             recentShipments: recentShipments,
+            topFranchises: topFranchises,
         });
     }
     catch (err) {

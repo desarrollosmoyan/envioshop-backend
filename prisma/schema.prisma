@@ -16,6 +16,7 @@ enum serviceName {
   REDPACK
   ESTAFETA
   UPS
+  PAQUETEEXPRESS
 }
 
 model Admin {

@@ -140,6 +140,32 @@ class Franchise {
       throw error;
     }
   }
+  async getTopFranchises() {
+    try {
+      const franchiseList = await this.franchise.findMany({
+        where: {
+          sales: {
+            some: {},
+          },
+        },
+        take: 5,
+        select: {
+          name: true,
+          sales: {
+            orderBy: [
+              {
+                shipmentPrice: "asc",
+              },
+            ],
+          },
+        },
+      });
+      if (!franchiseList) return null;
+      return franchiseList;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 const franchiseModel = new Franchise(prisma.franchise);

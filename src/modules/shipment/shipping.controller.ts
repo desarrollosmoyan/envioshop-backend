@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Request, Response } from "express";
 import { DHLService, FEDEXService, REDPACKService, UPSService } from "../../..";
+import franchiseModel from "../../database/models/franchise.model";
 import salesModel, { serviceName } from "../../database/models/sales.model";
 import { ApiService } from "../../service/service";
 import { formatShippingBody, formatShippingResponse } from "../../utils/utils";
@@ -16,19 +17,38 @@ export const createShipment = async (req: Request, res: Response) => {
     const { company } = req.params;
     const { franchiseId, turnId, shipmentPrice } = req.body;
     if (!company) return res.status(400).json({ message: "Bad request" });
-    const services: Services = {
-      FEDEX: FEDEXService,
+    const services = {
+      //FEDEX: FEDEXService,
       DHL: DHLService,
       REDPACK: REDPACKService,
-      UPS: UPSService,
+      //UPS: UPSService,
     };
     const serviceNameMap: any = {
       FEDEX: serviceName.FEDEX,
       DHL: serviceName.DHL,
       REDPACK: serviceName.REDPACK,
       UPS: serviceName.UPS,
+      PAQUETEEXPRESS: serviceName.PAQUETEEXPRESS,
     };
-    const shippingService = services[company as keyof Services];
+    const shippingService = services[company as keyof typeof services];
+    if (!shippingService) {
+      const newSale = await salesModel.create({
+        serviceName: serviceNameMap[company as keyof typeof serviceNameMap],
+        serviceType: req.body.serviceType,
+        shipmentDescription: "",
+        shipmentPrice: parseFloat(shipmentPrice),
+        shipmentPdf: "No tiene documento",
+        shipper: {
+          postalCode: req.body.shipperPostalCode,
+        },
+        receiver: {
+          postalCode: req.body.receiverPostalCode,
+        },
+        franchiseId: franchiseId,
+        turnId: turnId,
+        shipmentTrackingNumber: "",
+      });
+    }
     const data = await shippingService.createShipping(req.body);
     const info = await formatShippingResponse(data, company);
     console.log(req.body);
@@ -64,6 +84,7 @@ export const createShipment = async (req: Request, res: Response) => {
       turnId: turnId,
       shipmentTrackingNumber: info.package.trackingNumber,
     });
+
     if (data) return res.status(200).json({ shipment: info });
   } catch (error: any) {
     res.status(404).json({ message: error.message });

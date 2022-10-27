@@ -7,6 +7,7 @@ export enum serviceName {
   REDPACK = "REDPACK",
   ESTAFETA = "ESTAFETA",
   UPS = "UPS",
+  PAQUETEEXPRESS = "PAQUETEEXPRESS",
 }
 type SalesData = {
   serviceName: serviceName;

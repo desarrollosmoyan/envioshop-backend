@@ -149,6 +149,36 @@ class Franchise {
             }
         });
     }
+    getTopFranchises() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const franchiseList = yield this.franchise.findMany({
+                    where: {
+                        sales: {
+                            some: {},
+                        },
+                    },
+                    take: 5,
+                    select: {
+                        name: true,
+                        sales: {
+                            orderBy: [
+                                {
+                                    shipmentPrice: "asc",
+                                },
+                            ],
+                        },
+                    },
+                });
+                if (!franchiseList)
+                    return null;
+                return franchiseList;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 const franchiseModel = new Franchise(prisma_1.default.franchise);
 exports.default = franchiseModel;

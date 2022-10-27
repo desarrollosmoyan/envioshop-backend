@@ -32,6 +32,7 @@ var serviceName;
     serviceName["REDPACK"] = "REDPACK";
     serviceName["ESTAFETA"] = "ESTAFETA";
     serviceName["UPS"] = "UPS";
+    serviceName["PAQUETEEXPRESS"] = "PAQUETEEXPRESS";
 })(serviceName = exports.serviceName || (exports.serviceName = {}));
 class Sales {
     constructor(sale) {

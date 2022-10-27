@@ -47,18 +47,37 @@ const createShipment = (req, res) => __awaiter(void 0, void 0, void 0, function*
         if (!company)
             return res.status(400).json({ message: "Bad request" });
         const services = {
-            FEDEX: __1.FEDEXService,
+            //FEDEX: FEDEXService,
             DHL: __1.DHLService,
             REDPACK: __1.REDPACKService,
-            UPS: __1.UPSService,
+            //UPS: UPSService,
         };
         const serviceNameMap = {
             FEDEX: sales_model_1.serviceName.FEDEX,
             DHL: sales_model_1.serviceName.DHL,
             REDPACK: sales_model_1.serviceName.REDPACK,
             UPS: sales_model_1.serviceName.UPS,
+            PAQUETEEXPRESS: sales_model_1.serviceName.PAQUETEEXPRESS,
         };
         const shippingService = services[company];
+        if (!shippingService) {
+            const newSale = yield sales_model_1.default.create({
+                serviceName: serviceNameMap[company],
+                serviceType: req.body.serviceType,
+                shipmentDescription: "",
+                shipmentPrice: parseFloat(shipmentPrice),
+                shipmentPdf: "No tiene documento",
+                shipper: {
+                    postalCode: req.body.shipperPostalCode,
+                },
+                receiver: {
+                    postalCode: req.body.receiverPostalCode,
+                },
+                franchiseId: franchiseId,
+                turnId: turnId,
+                shipmentTrackingNumber: "",
+            });
+        }
         const data = yield shippingService.createShipping(req.body);
         const info = yield (0, utils_1.formatShippingResponse)(data, company);
         console.log(req.body);

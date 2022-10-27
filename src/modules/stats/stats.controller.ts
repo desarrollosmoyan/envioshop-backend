@@ -38,6 +38,8 @@ export const getStats = async (req: Request, res: Response) => {
       today,
       prevDays
     );
+    const topFranchises = await franchiseModel.getTopFranchises();
+    if (!topFranchises) throw new Error("error");
     res.status(200).json({
       message: "Stats getted successfully",
       totalCashiers: totalCashiers,
@@ -45,6 +47,7 @@ export const getStats = async (req: Request, res: Response) => {
       totalShipments: totalShipments,
       totalEarned: totalEarned,
       recentShipments: recentShipments,
+      topFranchises: topFranchises,
     });
   } catch (err: any) {
     console.log(err);
