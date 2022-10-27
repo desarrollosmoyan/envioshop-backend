@@ -1,185 +1,187 @@
+import { DHL as dhl, FEDEX as fedex, UPS as ups } from './data/settings.json';
+
 export const FEDEX = {
-  baseUrl: "https://apis.fedex.com",
-  serviceName: "FEDEX",
+  baseUrl: fedex,
+  serviceName: 'FEDEX',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   subServices: {
     rating: {
-      url: "/rate/v1/rates/quotes",
-      method: "POST",
+      url: '/rate/v1/rates/quotes',
+      method: 'POST',
     },
     tracking: {
-      url: "/track/v1/trackingnumbers",
-      method: "POST",
+      url: '/track/v1/trackingnumbers',
+      method: 'POST',
     },
     picking: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
     shipping: {
-      url: ["/ship/v1/shipments", "/ship/v1/shipments/cancel"],
-      method: ["POST", "DELETE"],
+      url: ['/ship/v1/shipments', '/ship/v1/shipments/cancel'],
+      method: ['POST', 'DELETE'],
     },
   },
 };
 
 export const DHL = {
-  baseUrl: "https://express.api.dhl.com/mydhlapi/test",
-  serviceName: "DHL",
+  baseUrl: dhl,
+  serviceName: 'DHL',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     Authorization: `Basic ${Buffer.from(
       `${process.env.DHL_USERNAME}:${process.env.DHL_PASSWORD}`
-    ).toString("base64")}`,
+    ).toString('base64')}`,
   },
   subServices: {
     rating: {
-      url: "/rates",
-      method: "POST",
+      url: '/rates',
+      method: 'POST',
     },
     tracking: {
-      url: "/shipments/0/tracking",
-      method: "GET",
+      url: '/shipments/0/tracking',
+      method: 'GET',
     },
     picking: {
-      url: "/pickups",
-      method: "",
+      url: '/pickups',
+      method: '',
     },
     shipping: {
-      url: "/shipments",
-      method: "POST",
+      url: '/shipments',
+      method: 'POST',
     },
   },
 };
 
 export const UPS = {
-  baseUrl: "https://wwwcie.ups.com",
-  serviceName: "UPS",
+  baseUrl: ups,
+  serviceName: 'UPS',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     AccessLicenseNumber: `${process.env.ACCESS_LICENSE_NUMBER}`,
   },
   subServices: {
     rating: {
-      url: "/ship/v1/rating/Rate",
-      method: "POST",
+      url: '/ship/v1/rating/Rate',
+      method: 'POST',
     },
     tracking: {
-      url: "/track/v1/details/0",
-      method: "GET",
+      url: '/track/v1/details/0',
+      method: 'GET',
     },
     picking: {
-      url: "/ship/v1/shipments",
-      method: "",
+      url: '/ship/v1/shipments',
+      method: '',
     },
     shipping: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
   },
 };
 
 export const REDPACK = {
-  baseUrl: "https://",
-  serviceName: "REDPACK",
+  baseUrl: 'https://',
+  serviceName: 'REDPACK',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   subServices: {
     rating: {
-      url: "apiqa2.redpack.com.mx:5800/redpack/nationalQuote",
-      method: "GET",
+      url: 'apiqa2.redpack.com.mx:5800/redpack/nationalQuote',
+      method: 'GET',
     },
     tracking: {
-      url: "apiqa.redpack.com.mx:5400/redpack/trackingByNumber",
-      method: "GET",
+      url: 'apiqa.redpack.com.mx:5400/redpack/trackingByNumber',
+      method: 'GET',
     },
     picking: {
-      url: "/pickups",
-      method: "",
+      url: '/pickups',
+      method: '',
     },
     shipping: {
-      url: "apiqa.redpack.com.mx:5600/redpack/automatic-documentation",
-      method: "POST",
+      url: 'apiqa.redpack.com.mx:5600/redpack/automatic-documentation',
+      method: 'POST',
     },
   },
 };
 
 export const ESTAFETA = {
-  baseUrl: "https://www.estafeta.com/",
-  serviceName: "ESTAFETA",
+  baseUrl: 'https://www.estafeta.com/',
+  serviceName: 'ESTAFETA',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   subServices: {
     rating: {
-      url: "/Herramientas/Cotizar-un-envio",
-      method: "",
+      url: '/Herramientas/Cotizar-un-envio',
+      method: '',
     },
     tracking: {
-      url: "/Herramientas/Rastreo",
-      method: "",
+      url: '/Herramientas/Rastreo',
+      method: '',
     },
     picking: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
     shipping: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
   },
 };
 
 export const PAQUETEEXPRESS = {
-  baseUrl: "https://www.paquetexpress.com.mx/servicios",
-  serviceName: "PAQUETEEXPRESS",
+  baseUrl: 'https://www.paquetexpress.com.mx/servicios',
+  serviceName: 'PAQUETEEXPRESS',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   subServices: {
     rating: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
     tracking: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
     picking: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
     shipping: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
   },
 };
 
 export const PAQUETEEXPRESSSERVICE = {
-  baseUrl: "https://cc.paquetexpress.com.mx",
-  serviceName: "PAQUETEEXPRESS",
+  baseUrl: 'https://cc.paquetexpress.com.mx',
+  serviceName: 'PAQUETEEXPRESS',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   subServices: {
     rating: {
-      url: "/WsQuotePaquetexpress/api/apiQuoter/v2/getQuotation?source=WEBPAGE",
-      method: "POST",
+      url: '/WsQuotePaquetexpress/api/apiQuoter/v2/getQuotation?source=WEBPAGE',
+      method: 'POST',
     },
     tracking: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
     picking: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
     shipping: {
-      url: "",
-      method: "",
+      url: '',
+      method: '',
     },
   },
 };
