@@ -48,7 +48,7 @@ connectRedis().then(async (redis) => {
   }, 600000);
   setInterval(async () => {
     await BASEURL_REFRESHER();
-  }, 18000);
+  }, 600000);
   setInterval(async () => {
     await FEDEX_REFRESHER();
   }, 1800000);
