@@ -25,3 +25,17 @@ export const endTurn = async (req: Request, res: Response) => {
     res.status(404).json({ message: "" });
   }
 };
+
+export const updateTurn = async (req: Request, res: Response) => {
+  try {
+    const turnId = req.params.id;
+    const body = req.body;
+    const turnUpdated = await turnModel.update(turnId, body);
+    if (!turnUpdated) throw new Error("Something is wrong");
+    res
+      .status(200)
+      .json({ message: "Turn updated successfully", turn: turnUpdated });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};

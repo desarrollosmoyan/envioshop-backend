@@ -108,6 +108,25 @@ class Sales {
       throw error;
     }
   }
+
+  async count(franchiseId: string | null) {
+    try {
+      let saleList;
+      if (franchiseId) {
+        saleList = await this.sale.count({
+          where: {
+            franchiseId: franchiseId,
+          },
+        });
+      } else {
+        saleList = await this.sale.count({});
+      }
+      if (!saleList) return null;
+      return saleList;
+    } catch (error) {
+      throw error;
+    }
+  }
   async countTotalEarned(lte: Date, gte: Date) {
     try {
       const totalEarned = await this.sale.findMany({

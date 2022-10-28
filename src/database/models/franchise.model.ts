@@ -26,10 +26,20 @@ interface FranchiseUpdateData {
 }
 class Franchise {
   constructor(private readonly franchise: PrismaClient["franchise"]) {}
-  async getAll([offset = 0, limit = 20]: number[]) {
+  async getAll([offset = 0, limit = 20]: number[], cityName?: string) {
+    let filter;
+    console.log(cityName);
+    if (cityName) {
+      filter = {
+        where: {
+          ubication: cityName,
+        },
+      };
+    }
     const franchiseList = await this.franchise.findMany({
       skip: offset,
       take: limit,
+      ...filter,
       select: {
         id: true,
         name: true,
@@ -103,7 +113,23 @@ class Franchise {
     if (!deletedFranchise) return null;
     return deletedFranchise;
   }
+  async deleteMany(ids: string[]) {
+    try {
+      const deletedFranchises = await this.franchise.deleteMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+      });
+      if (!deletedFranchises) return null;
+      return deletedFranchises;
+    } catch (error) {
+      throw error;
+    }
+  }
   async get({ id, email }: { id?: string; email?: string }) {
+    console.log("get entro");
     const franchiseFound = id
       ? await this.franchise.findUnique({
           where: { id: id },
@@ -123,7 +149,51 @@ class Franchise {
   async count() {
     return this.franchise.count();
   }
-
+  async getBySearch(valueToSearch: string, [offset = 0, limit = 20]: number[]) {
+    try {
+      console.log(offset, limit);
+      let where = {};
+      if (valueToSearch.length > 0) {
+        where = {
+          where: {
+            name: {
+              contains: valueToSearch,
+              mode: "insensitive",
+            },
+          },
+        };
+      }
+      const franchises = await this.franchise.findMany({
+        ...where,
+        skip: offset,
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          ubication: true,
+          cellphone: true,
+          createdAt: true,
+          sales: {
+            select: {
+              id: true,
+            },
+          },
+          cashiers: {
+            select: {
+              name: true,
+              email: true,
+              id: true,
+            },
+          },
+        },
+      });
+      if (!franchises) return null;
+      return franchises;
+    } catch (error) {
+      throw error;
+    }
+  }
   async countForDate(lte: Date, gte: Date) {
     try {
       const franchiseCount = await this.franchise.count({
@@ -136,6 +206,25 @@ class Franchise {
       });
       if (!franchiseCount) return null;
       return franchiseCount;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getAllFranchiseCities([offset, limit]: number[]) {
+    try {
+      const list = await this.franchise.findMany({
+        skip: offset,
+        take: limit,
+        select: {
+          ubication: true,
+        },
+      });
+      if (!list) return null;
+      return list.reduce((acc: any, cur: any, i: any) => {
+        const key = "ubication";
+        const alreadyExists = acc.find((item: any) => item === cur[key]);
+        return alreadyExists ? acc : [...acc, cur[key]];
+      }, []);
     } catch (error) {
       throw error;
     }

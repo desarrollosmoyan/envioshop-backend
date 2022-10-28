@@ -24,7 +24,6 @@ type TurnUpdateData = {
   closeBalance?: Prisma.JsonObject;
   openBalance?: Prisma.JsonObject;
   cashierId?: string;
-  sales?: Sales[];
 };
 class Turn {
   constructor(private readonly turn: PrismaClient["turn"]) {}
@@ -88,7 +87,20 @@ class Turn {
     }
   }
 
-  async update(id: string, data: TurnUpdateData) {}
+  async update(id: string, data: TurnUpdateData) {
+    try {
+      const turn = await this.turn.update({
+        where: {
+          id: id,
+        },
+        data: { ...data },
+      });
+      if (!turn) return null;
+      return turn;
+    } catch (error) {
+      return error;
+    }
+  }
 }
 
 const turnModel = new Turn(prisma.turn);

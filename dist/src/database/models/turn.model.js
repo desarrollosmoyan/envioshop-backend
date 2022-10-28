@@ -89,7 +89,22 @@ class Turn {
         });
     }
     update(id, data) {
-        return __awaiter(this, void 0, void 0, function* () { });
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const turn = yield this.turn.update({
+                    where: {
+                        id: id,
+                    },
+                    data: Object.assign({}, data),
+                });
+                if (!turn)
+                    return null;
+                return turn;
+            }
+            catch (error) {
+                return error;
+            }
+        });
     }
 }
 const turnModel = new Turn(prisma_1.default.turn);

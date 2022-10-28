@@ -155,6 +155,21 @@ class Cashier {
     if (!deletedCashier) return null;
     return deletedCashier;
   }
+  async deleteMany(ids: string[]) {
+    try {
+      const deletedCashiers = await this.cashier.deleteMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+      });
+      if (!deletedCashiers) return null;
+      return deletedCashiers;
+    } catch (error) {
+      throw error;
+    }
+  }
   async count() {
     return this.cashier.count();
   }

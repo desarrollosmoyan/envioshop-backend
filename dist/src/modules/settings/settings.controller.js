@@ -9,4 +9,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const getURLS = (req, res) => __awaiter(void 0, void 0, void 0, function* () { });
+exports.updateURLS = exports.getURLS = void 0;
+const fs_1 = require("fs");
+const getURLS = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const rawData = yield fs_1.promises.readFile('./src/data/settings.json', 'binary');
+    if (!rawData)
+        return res.json({
+            fedex: 'https://apis.fedex.com',
+            dhl: 'https://express.api.dhl.com/mydhlapi/test',
+            ups: 'https://wwwcie.ups.com',
+        });
+    const data = JSON.parse(rawData);
+    return res.json(data);
+});
+exports.getURLS = getURLS;
+const updateURLS = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const rawData = yield fs_1.promises.readFile('./src/data/settings.json', 'binary');
+    if (!rawData || !req.body)
+        return res.json({
+            fedex: 'https://apis.fedex.com',
+            dhl: 'https://express.api.dhl.com/mydhlapi/test',
+            ups: 'https://wwwcie.ups.com',
+        });
+    yield fs_1.promises.writeFile('./src/data/settings.json', JSON.stringify(req.body));
+    return res.json(req.body);
+});
+exports.updateURLS = updateURLS;

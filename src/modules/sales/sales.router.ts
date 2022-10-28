@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { getAllSales, createOneSale, getOneSale } from "./sales.controller";
+import {
+  getAllSales,
+  createOneSale,
+  getOneSale,
+  getSalesCount,
+} from "./sales.controller";
 const salesRouter = Router();
 
 salesRouter.get("/", getAllSales);

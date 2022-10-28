@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.redisConnection = exports.PAQUETEEXPRESSService = exports.ESTAFETAService = exports.REDPACKService = exports.UPSService = exports.DHLService = exports.FEDEXService = void 0;
-require("dotenv").config();
+require('dotenv').config();
 //import { RedisClientType } from "@redis/client";
 //import { createClient } from "redis";
 const constants_1 = require("./src/constants");
@@ -30,16 +30,23 @@ exports.FEDEXService.setAuthorization();
 exports.REDPACKService.setAuthorization();
 exports.redisConnection = (0, redis_1.connectRedis)();
 (0, redis_1.connectRedis)().then((redis) => __awaiter(void 0, void 0, void 0, function* () {
-    const fedexToken = yield redis.get("FEDEXTOKEN");
-    const redpackToken = yield redis.get("REDPACKTOKEN");
+    const fedexToken = yield redis.get('FEDEXTOKEN');
+    const redpackToken = yield redis.get('REDPACKTOKEN');
     if (!fedexToken || !redpackToken) {
         yield exports.FEDEXService.setAuthorization();
         yield exports.REDPACKService.setAuthorization();
     }
     const REDPACK_REFRESHER = () => __awaiter(void 0, void 0, void 0, function* () { return exports.REDPACKService.setAuthorization(); });
     const FEDEX_REFRESHER = () => __awaiter(void 0, void 0, void 0, function* () { return exports.FEDEXService.setAuthorization(); });
+    const BASEURL_REFRESHER = () => __awaiter(void 0, void 0, void 0, function* () {
+        return Promise.all([exports.FEDEXService, exports.DHLService, exports.UPSService].map((service) => __awaiter(void 0, void 0, void 0, function* () { return yield service.refreshBaseUrl(); })));
+    });
+    // );
     setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
         yield REDPACK_REFRESHER();
+    }), 600000);
+    setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield BASEURL_REFRESHER();
     }), 600000);
     setInterval(() => __awaiter(void 0, void 0, void 0, function* () {
         yield FEDEX_REFRESHER();

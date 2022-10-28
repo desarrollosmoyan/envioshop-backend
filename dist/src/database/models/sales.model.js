@@ -137,6 +137,29 @@ class Sales {
             }
         });
     }
+    count(franchiseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let saleList;
+                if (franchiseId) {
+                    saleList = yield this.sale.count({
+                        where: {
+                            franchiseId: franchiseId,
+                        },
+                    });
+                }
+                else {
+                    saleList = yield this.sale.count({});
+                }
+                if (!saleList)
+                    return null;
+                return saleList;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
     countTotalEarned(lte, gte) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

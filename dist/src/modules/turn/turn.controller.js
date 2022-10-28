@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.endTurn = exports.assignTurn = void 0;
+exports.updateTurn = exports.endTurn = exports.assignTurn = void 0;
 const turn_model_1 = __importDefault(require("../../database/models/turn.model"));
 const assignTurn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -43,3 +43,19 @@ const endTurn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.endTurn = endTurn;
+const updateTurn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const turnId = req.params.id;
+        const body = req.body;
+        const turnUpdated = yield turn_model_1.default.update(turnId, body);
+        if (!turnUpdated)
+            throw new Error("Something is wrong");
+        res
+            .status(200)
+            .json({ message: "Turn updated successfully", turn: turnUpdated });
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+exports.updateTurn = updateTurn;

@@ -1,6 +1,6 @@
 import { Franchise, prisma } from "@prisma/client";
 import axios from "axios";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { decode, JwtPayload } from "jsonwebtoken";
 import adminModel from "../../database/models/admin.model";
 import cashierModel from "../../database/models/cashier.model";
@@ -42,11 +42,14 @@ export const createOneAdmin = async (req: Request, res: Response) => {
 };
 export const getAllFranchises = async (req: Request, res: Response) => {
   try {
+    console.log("sexo");
     const { offset, limit } = req.query;
-    const franchiseList = await franchiseModel.getAll([
-      parseInt(offset as string),
-      parseInt(limit as string),
-    ]);
+    const body = req.body;
+
+    const franchiseList = await franchiseModel.getAll(
+      [parseInt(offset as string), parseInt(limit as string)],
+      body.cityName
+    );
     const totalFranchises = await franchiseModel.count();
     if (!franchiseList) return res.status(400).json({ message: "Error" });
     res
@@ -58,9 +61,53 @@ export const getAllFranchises = async (req: Request, res: Response) => {
   }
 };
 
-export const getOneFranchise = async (req: Request, res: Response) => {
+export const getAllFranchisesByCity = async (req: Request, res: Response) => {
+  try {
+    const { offset, limit } = req.query;
+    const cityName = req.body.cityName;
+    const list = await franchiseModel.getAll(
+      [parseInt(offset as string), parseInt(limit as string)],
+      cityName
+    );
+    const totalFranchises = await franchiseModel.count();
+    if (!list) throw new Error("Something wrong");
+    res.status(200).json({
+      message: "successfully",
+      franchises: list,
+      total: totalFranchises,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: "Error" });
+  }
+};
+export const getAllFranchisesCities = async (req: Request, res: Response) => {
+  try {
+    const { offset, limit } = req.query;
+    const franchisesCitiesList = await franchiseModel.getAllFranchiseCities([
+      parseInt(offset as string),
+      parseInt(limit as string),
+    ]);
+    if (!franchisesCitiesList) throw new Error("Something is wrong");
+    res
+      .status(200)
+      .json({ message: "Sucessfully request", cities: franchisesCitiesList });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getOneFranchise = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     //const payload = decode(req.token as string) as JwtPayload;
+    console.log("entro get one franchise");
+    console.log(req.body);
+    console.log(req.params);
+    console.log(req.url);
     const franchiseId = req.params.id;
     const franchise = await franchiseModel.get({ id: franchiseId });
     if (!franchise)
@@ -107,6 +154,29 @@ export const deleteOneFranchise = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Can't delete franchise" });
     res.status(200).json({ message: "Franchise deleted successfully" });
   } catch (error) {}
+};
+
+export const deleteManyFranchises = async (req: Request, res: Response) => {
+  try {
+    const franchisesIds = req.body.ids;
+    const deletedFranchises = await franchiseModel.deleteMany(franchisesIds);
+    if (!deletedFranchises) throw new Error("Something is wrong");
+    res.status(200).json({ message: "Sucessfully operation" });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const deleteManyCashiers = async (req: Request, res: Response) => {
+  try {
+    const cashiersIds = req.body.ids;
+    const deletedCashiers = await cashierModel.deleteMany(cashiersIds);
+    console.log(deletedCashiers);
+    if (!deletedCashiers) throw new Error("Something is wrong");
+    res.status(200).json({ message: "Sucessfully operation" });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
 };
 
 export const createAFranchise = async (req: Request, res: Response) => {
@@ -166,6 +236,27 @@ export const getOneCashier = async (req: Request, res: Response) => {
     return res.status(200).json({ ...cashier });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+export const getFranchiseBySearch = async (req: Request, res: Response) => {
+  try {
+    const value = req.params.value;
+    if (!value) throw new Error("Value is null");
+    console.log(req.params.offset, req.params.limit);
+    const offset = parseInt(req.query.offset as string);
+    const limit = parseInt(req.query.limit as string);
+    const franchisesMatched = await franchiseModel.getBySearch(value, [
+      offset,
+      limit,
+    ]);
+    if (!franchiseModel) throw new Error("Something is wrong");
+    res.status(200).json({
+      message: "Successfully Operation",
+      franchises: franchisesMatched,
+    });
+  } catch (error) {
+    throw error;
   }
 };
 

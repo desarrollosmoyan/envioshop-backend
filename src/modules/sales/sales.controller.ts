@@ -21,9 +21,11 @@ export const getAllSales = async (req: Request, res: Response) => {
       parseInt(offset as string),
       parseInt(limit as string),
     ]);
-    if (!salesList)
+    const count = await salesModel.count(null);
+    if (!salesList) {
       return res.status(400).json({ message: "can't get sale list" });
-    res.status(200).json({ salesList: salesList });
+    }
+    res.status(200).json({ salesList: salesList, count: count });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
@@ -37,5 +39,16 @@ export const getOneSale = async (req: Request, res: Response) => {
     res.status(200).json({ sale: sale });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+export const getSalesCount = async (req: Request, res: Response) => {
+  try {
+    const id = req.body.id ? req.body.id : null;
+    const count = await salesModel.count(id);
+    if (!count) throw new Error("Error");
+    res.status(200).json({ count: count });
+  } catch (error) {
+    res.status(400).json({ message: "Something is wrong" });
   }
 };

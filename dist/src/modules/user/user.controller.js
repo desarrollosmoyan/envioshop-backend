@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMe = exports.getAllCashiersFromOneFranchise = exports.deleteOneCashier = exports.getOneCashier = exports.updateOneCashier = exports.createACashier = exports.createAFranchise = exports.deleteOneFranchise = exports.updateOneFranchise = exports.getAllCashiers = exports.getOneFranchise = exports.getAllFranchises = exports.createOneAdmin = exports.getUser = void 0;
+exports.getMe = exports.getAllCashiersFromOneFranchise = exports.deleteOneCashier = exports.getFranchiseBySearch = exports.getOneCashier = exports.updateOneCashier = exports.createACashier = exports.createAFranchise = exports.deleteManyCashiers = exports.deleteManyFranchises = exports.deleteOneFranchise = exports.updateOneFranchise = exports.getAllCashiers = exports.getOneFranchise = exports.getAllFranchisesCities = exports.getAllFranchisesByCity = exports.getAllFranchises = exports.createOneAdmin = exports.getUser = void 0;
 const jsonwebtoken_1 = require("jsonwebtoken");
 const admin_model_1 = __importDefault(require("../../database/models/admin.model"));
 const cashier_model_1 = __importDefault(require("../../database/models/cashier.model"));
@@ -59,11 +59,10 @@ const createOneAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.createOneAdmin = createOneAdmin;
 const getAllFranchises = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log("sexo");
         const { offset, limit } = req.query;
-        const franchiseList = yield franchise_model_1.default.getAll([
-            parseInt(offset),
-            parseInt(limit),
-        ]);
+        const body = req.body;
+        const franchiseList = yield franchise_model_1.default.getAll([parseInt(offset), parseInt(limit)], body.cityName);
         const totalFranchises = yield franchise_model_1.default.count();
         if (!franchiseList)
             return res.status(400).json({ message: "Error" });
@@ -77,9 +76,51 @@ const getAllFranchises = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getAllFranchises = getAllFranchises;
-const getOneFranchise = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllFranchisesByCity = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { offset, limit } = req.query;
+        const cityName = req.body.cityName;
+        const list = yield franchise_model_1.default.getAll([parseInt(offset), parseInt(limit)], cityName);
+        const totalFranchises = yield franchise_model_1.default.count();
+        if (!list)
+            throw new Error("Something wrong");
+        res.status(200).json({
+            message: "successfully",
+            franchises: list,
+            total: totalFranchises,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(400).json({ message: "Error" });
+    }
+});
+exports.getAllFranchisesByCity = getAllFranchisesByCity;
+const getAllFranchisesCities = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { offset, limit } = req.query;
+        const franchisesCitiesList = yield franchise_model_1.default.getAllFranchiseCities([
+            parseInt(offset),
+            parseInt(limit),
+        ]);
+        if (!franchisesCitiesList)
+            throw new Error("Something is wrong");
+        res
+            .status(200)
+            .json({ message: "Sucessfully request", cities: franchisesCitiesList });
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+exports.getAllFranchisesCities = getAllFranchisesCities;
+const getOneFranchise = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         //const payload = decode(req.token as string) as JwtPayload;
+        console.log("entro get one franchise");
+        console.log(req.body);
+        console.log(req.params);
+        console.log(req.url);
         const franchiseId = req.params.id;
         const franchise = yield franchise_model_1.default.get({ id: franchiseId });
         if (!franchise)
@@ -132,6 +173,33 @@ const deleteOneFranchise = (req, res) => __awaiter(void 0, void 0, void 0, funct
     catch (error) { }
 });
 exports.deleteOneFranchise = deleteOneFranchise;
+const deleteManyFranchises = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const franchisesIds = req.body.ids;
+        const deletedFranchises = yield franchise_model_1.default.deleteMany(franchisesIds);
+        if (!deletedFranchises)
+            throw new Error("Something is wrong");
+        res.status(200).json({ message: "Sucessfully operation" });
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+exports.deleteManyFranchises = deleteManyFranchises;
+const deleteManyCashiers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const cashiersIds = req.body.ids;
+        const deletedCashiers = yield cashier_model_1.default.deleteMany(cashiersIds);
+        console.log(deletedCashiers);
+        if (!deletedCashiers)
+            throw new Error("Something is wrong");
+        res.status(200).json({ message: "Sucessfully operation" });
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+exports.deleteManyCashiers = deleteManyCashiers;
 const createAFranchise = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const payload = (0, jsonwebtoken_1.decode)(req.token);
@@ -193,6 +261,30 @@ const getOneCashier = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getOneCashier = getOneCashier;
+const getFranchiseBySearch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const value = req.params.value;
+        if (!value)
+            throw new Error("Value is null");
+        console.log(req.params.offset, req.params.limit);
+        const offset = parseInt(req.query.offset);
+        const limit = parseInt(req.query.limit);
+        const franchisesMatched = yield franchise_model_1.default.getBySearch(value, [
+            offset,
+            limit,
+        ]);
+        if (!franchise_model_1.default)
+            throw new Error("Something is wrong");
+        res.status(200).json({
+            message: "Successfully Operation",
+            franchises: franchisesMatched,
+        });
+    }
+    catch (error) {
+        throw error;
+    }
+});
+exports.getFranchiseBySearch = getFranchiseBySearch;
 const deleteOneCashier = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const cashierId = req.params.id;

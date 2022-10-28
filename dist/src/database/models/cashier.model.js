@@ -174,6 +174,25 @@ class Cashier {
             return deletedCashier;
         });
     }
+    deleteMany(ids) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const deletedCashiers = yield this.cashier.deleteMany({
+                    where: {
+                        id: {
+                            in: ids,
+                        },
+                    },
+                });
+                if (!deletedCashiers)
+                    return null;
+                return deletedCashiers;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
     count() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.cashier.count();

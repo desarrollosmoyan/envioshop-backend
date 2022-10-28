@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOneSale = exports.getAllSales = exports.createOneSale = void 0;
+exports.getSalesCount = exports.getOneSale = exports.getAllSales = exports.createOneSale = void 0;
 const sales_model_1 = __importDefault(require("../../database/models/sales.model"));
 const createOneSale = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -34,9 +34,11 @@ const getAllSales = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             parseInt(offset),
             parseInt(limit),
         ]);
-        if (!salesList)
+        const count = yield sales_model_1.default.count(null);
+        if (!salesList) {
             return res.status(400).json({ message: "can't get sale list" });
-        res.status(200).json({ salesList: salesList });
+        }
+        res.status(200).json({ salesList: salesList, count: count });
     }
     catch (error) {
         res.status(400).json({ message: error.message });
@@ -56,3 +58,16 @@ const getOneSale = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.getOneSale = getOneSale;
+const getSalesCount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.body.id ? req.body.id : null;
+        const count = yield sales_model_1.default.count(id);
+        if (!count)
+            throw new Error("Error");
+        res.status(200).json({ count: count });
+    }
+    catch (error) {
+        res.status(400).json({ message: "Something is wrong" });
+    }
+});
+exports.getSalesCount = getSalesCount;
