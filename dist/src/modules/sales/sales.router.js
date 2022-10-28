@@ -5,5 +5,6 @@ const sales_controller_1 = require("./sales.controller");
 const salesRouter = (0, express_1.Router)();
 salesRouter.get("/", sales_controller_1.getAllSales);
 salesRouter.post("/", sales_controller_1.createOneSale);
+salesRouter.post("/franchises", sales_controller_1.getFranchisesWithSales);
 salesRouter.get("/:id", sales_controller_1.getOneSale);
 exports.default = salesRouter;

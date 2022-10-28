@@ -265,6 +265,7 @@ class Franchise {
       throw error;
     }
   }
+  async getSalesFromFranchises() {}
 }
 
 const franchiseModel = new Franchise(prisma.franchise);

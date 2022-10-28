@@ -78,13 +78,28 @@ class Sales {
             }
         });
     }
-    getAll([offset, limit]) {
+    getAll([offset, limit], svcName, lte, gte) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const saleList = yield this.sale.findMany({
-                    skip: offset,
-                    take: limit,
-                    include: {
+                let where;
+                if (serviceName) {
+                    where = {
+                        where: {
+                            serviceName: svcName,
+                        },
+                    };
+                }
+                console.log(lte, gte);
+                if (lte && gte) {
+                    where = {
+                        where: Object.assign(Object.assign({}, where === null || where === void 0 ? void 0 : where.where), { createdAt: {
+                                lte: lte,
+                                gte: gte,
+                            } }),
+                    };
+                }
+                console.log(where);
+                const saleList = yield this.sale.findMany(Object.assign(Object.assign({ skip: offset, take: limit }, where), { include: {
                         franchise: {
                             select: {
                                 id: true,
@@ -103,8 +118,7 @@ class Sales {
                                 },
                             },
                         },
-                    },
-                });
+                    } }));
                 if (!saleList)
                     return null;
                 return saleList;
@@ -233,6 +247,30 @@ class Sales {
                 if (!saleList)
                     return null;
                 return saleList;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getFranchisesWithShipments([offset = 0, limit = 20]) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const list = yield this.sale.findMany({
+                    take: limit,
+                    skip: offset,
+                    select: {
+                        franchise: {
+                            select: {
+                                name: true,
+                                id: true,
+                            },
+                        },
+                    },
+                });
+                if (!list)
+                    return null;
+                return list;
             }
             catch (error) {
                 throw error;

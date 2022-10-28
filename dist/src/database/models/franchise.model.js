@@ -281,6 +281,9 @@ class Franchise {
             }
         });
     }
+    getSalesFromFranchises() {
+        return __awaiter(this, void 0, void 0, function* () { });
+    }
 }
 const franchiseModel = new Franchise(prisma_1.default.franchise);
 exports.default = franchiseModel;

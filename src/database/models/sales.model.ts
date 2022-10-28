@@ -59,11 +59,38 @@ class Sales {
       throw error;
     }
   }
-  async getAll([offset, limit]: number[]) {
+  async getAll(
+    [offset, limit]: number[],
+    svcName?: serviceName,
+    lte?: Date,
+    gte?: Date
+  ) {
     try {
+      let where;
+      if (serviceName) {
+        where = {
+          where: {
+            serviceName: svcName,
+          },
+        };
+      }
+      console.log(lte, gte);
+      if (lte && gte) {
+        where = {
+          where: {
+            ...where?.where,
+            createdAt: {
+              lte: lte,
+              gte: gte,
+            },
+          },
+        };
+      }
+      console.log(where);
       const saleList = await this.sale.findMany({
         skip: offset,
         take: limit,
+        ...where,
         include: {
           franchise: {
             select: {
@@ -206,6 +233,27 @@ class Sales {
       });
       if (!saleList) return null;
       return saleList;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getFranchisesWithShipments([offset = 0, limit = 20]: number[]) {
+    try {
+      const list = await this.sale.findMany({
+        take: limit,
+        skip: offset,
+        select: {
+          franchise: {
+            select: {
+              name: true,
+              id: true,
+            },
+          },
+        },
+      });
+      if (!list) return null;
+      return list;
     } catch (error) {
       throw error;
     }
