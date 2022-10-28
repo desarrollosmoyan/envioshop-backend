@@ -20,6 +20,7 @@ userRouter.delete("/franchise/:id", [onlyAdmin_1.default], user_controller_1.del
 userRouter.put("/franchise/:id", [onlyAdmin_1.default], user_controller_1.updateOneFranchise);
 userRouter.delete("/franchise", [onlyAdmin_1.default], user_controller_1.deleteManyFranchises);
 userRouter.get("/me", user_controller_1.getMe);
+userRouter.post("/cashier/:id", [onlyFranchise_1.default], user_controller_1.getAllCashiersFromOneFranchise);
 userRouter.delete("/cashier", [onlyFranchise_1.default], user_controller_1.deleteManyCashiers);
 userRouter.get("/cashier", [onlyFranchise_1.default], user_controller_1.getAllCashiers);
 userRouter.post("/cashier", [onlyFranchise_1.default], user_controller_1.createACashier);

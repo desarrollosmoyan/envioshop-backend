@@ -136,6 +136,16 @@ class Franchise {
                     where: { id: id },
                     include: {
                         cashiers: true,
+                        sales: {
+                            include: {
+                                franchise: true,
+                                Turn: {
+                                    include: {
+                                        cashier: true,
+                                    },
+                                },
+                            },
+                        },
                     },
                 })
                 : yield this.franchise.findUnique({

@@ -135,6 +135,16 @@ class Franchise {
           where: { id: id },
           include: {
             cashiers: true,
+            sales: {
+              include: {
+                franchise: true,
+                Turn: {
+                  include: {
+                    cashier: true,
+                  },
+                },
+              },
+            },
           },
         })
       : await this.franchise.findUnique({

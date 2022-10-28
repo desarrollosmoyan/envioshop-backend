@@ -12,56 +12,100 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getStats = void 0;
+exports.getStatsFromOneFranchise = exports.getStats = void 0;
 const sales_model_1 = __importDefault(require("../../database/models/sales.model"));
 const franchise_model_1 = __importDefault(require("../../database/models/franchise.model"));
 const cashier_model_1 = __importDefault(require("../../database/models/cashier.model"));
+const jsonwebtoken_1 = require("jsonwebtoken");
 const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const today = new Date(Date.now());
-        const prevDays = new Date();
-        prevDays.setDate(today.getDate() - 7);
-        const totalShipments = yield sales_model_1.default.countForDate(today, prevDays);
-        if (!totalShipments) {
-            return res.status(400).json({ message: "Something wrong" });
+    const payload = (0, jsonwebtoken_1.decode)(req.token);
+    const id = payload.id;
+    if (payload.type === "admin") {
+        try {
+            const today = new Date(Date.now());
+            const prevDays = new Date();
+            prevDays.setDate(today.getDate() - 7);
+            const totalShipments = yield sales_model_1.default.countForDate(today, prevDays);
+            if (!totalShipments) {
+                return res.status(400).json({ message: "Something wrong" });
+            }
+            const totalEarned = yield sales_model_1.default.countTotalEarned(today, prevDays);
+            const totalFranchises = yield franchise_model_1.default.countForDate(today, prevDays);
+            if (!totalEarned && !totalFranchises)
+                return res.status(400).json({ message: "Something wrong" });
+            if (!totalShipments) {
+                return res.status(400).json({ message: "Something wrong" });
+            }
+            const totalCashiers = yield cashier_model_1.default.countForDate(today, prevDays);
+            const recentShipments = yield sales_model_1.default.getRecentShipments(today, prevDays);
+            const topFranchises = yield franchise_model_1.default.getTopFranchises();
+            if (!topFranchises)
+                throw new Error("error");
+            res.status(200).json({
+                message: "Stats getted successfully",
+                totalCashiers: totalCashiers,
+                totalFranchises: totalFranchises,
+                totalShipments: totalShipments,
+                totalEarned: totalEarned,
+                recentShipments: recentShipments,
+                topFranchises: topFranchises,
+            });
         }
-        const totalEarned = yield sales_model_1.default.countTotalEarned(today, prevDays);
-        const totalFranchises = yield franchise_model_1.default.countForDate(today, prevDays);
-        if (!totalEarned && !totalFranchises)
-            return res.status(400).json({ message: "Something wrong" });
-        if (!totalShipments) {
-            return res.status(400).json({ message: "Something wrong" });
+        catch (err) {
+            console.log(err);
+            res.status(400).json({ message: err.message });
         }
-        const totalCashiers = yield cashier_model_1.default.countForDate(today, prevDays);
-        /* const arrOfPromises = await Promise.all([
-          totalShipments,
-          totalEarned,
-          totalFranchises,
-          totalCashiers,
-        ]);
-        const filtered = arrOfPromises.map((e) => {
-          if (!e) {
-            return res.status(400).json({ message: "Something wrong" });
-          }
-          return e;
-        });*/
-        const recentShipments = yield sales_model_1.default.getRecentShipments(today, prevDays);
-        const topFranchises = yield franchise_model_1.default.getTopFranchises();
-        if (!topFranchises)
-            throw new Error("error");
-        res.status(200).json({
-            message: "Stats getted successfully",
-            totalCashiers: totalCashiers,
-            totalFranchises: totalFranchises,
-            totalShipments: totalShipments,
-            totalEarned: totalEarned,
-            recentShipments: recentShipments,
-            topFranchises: topFranchises,
-        });
     }
-    catch (err) {
-        console.log(err);
-        res.status(400).json({ message: err.message });
+    else {
+        try {
+            const payload = (0, jsonwebtoken_1.decode)(req.token);
+            const id = payload.id;
+            const today = new Date(Date.now());
+            const prevDays = new Date();
+            prevDays.setDate(today.getDate() - 7);
+            const totalEarned = yield sales_model_1.default.countTotalEarned(today, prevDays, id);
+            const totalShipments = yield sales_model_1.default.countForDate(today, prevDays, id);
+            const totalCashiers = yield cashier_model_1.default.countForDate(today, prevDays, id);
+            const recentShipments = yield sales_model_1.default.getRecentShipments(today, prevDays, id);
+            const topFranchises = yield franchise_model_1.default.getTopFranchises();
+            res.status(200).json({
+                message: "Stats getted successfully",
+                totalCashiers: totalCashiers,
+                totalShipments: totalShipments,
+                totalEarned: totalEarned,
+                recentShipments: recentShipments,
+                topFranchises: topFranchises,
+            });
+        }
+        catch (error) {
+            console.log(error);
+            res.status(400).json({ message: "Error something happened" });
+        }
     }
 });
 exports.getStats = getStats;
+const getStatsFromOneFranchise = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const payload = (0, jsonwebtoken_1.decode)(req.token);
+        const id = payload.id;
+        const today = new Date(Date.now());
+        const prevDays = new Date();
+        prevDays.setDate(today.getDate() - 7);
+        const totalEarned = yield sales_model_1.default.countTotalEarned(today, prevDays, id);
+        const totalShipments = yield sales_model_1.default.countForDate(today, prevDays, id);
+        const totalCashiers = yield cashier_model_1.default.countForDate(today, prevDays, id);
+        const topFranchises = yield franchise_model_1.default.getTopFranchises();
+        res.status(200).json({
+            message: "Stats getted successfully",
+            totalCashiers: totalCashiers,
+            totalShipments: totalShipments,
+            totalEarned: totalEarned,
+            topFranchises: topFranchises,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(400).json({ message: "Error something happened" });
+    }
+});
+exports.getStatsFromOneFranchise = getStatsFromOneFranchise;

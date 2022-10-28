@@ -39,6 +39,11 @@ userRouter.delete("/franchise", [onlyAdmin], deleteManyFranchises);
 
 userRouter.get("/me", getMe);
 
+userRouter.post(
+  "/cashier/:id",
+  [onlyFranchise],
+  getAllCashiersFromOneFranchise
+);
 userRouter.delete("/cashier", [onlyFranchise], deleteManyCashiers);
 userRouter.get("/cashier", [onlyFranchise], getAllCashiers);
 userRouter.post("/cashier", [onlyFranchise], createACashier);

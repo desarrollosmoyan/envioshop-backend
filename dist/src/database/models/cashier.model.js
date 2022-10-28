@@ -135,6 +135,12 @@ class Cashier {
                         email: true,
                         id: true,
                         createdAt: true,
+                        franchise: {
+                            select: {
+                                name: true,
+                                email: true,
+                            },
+                        },
                     },
                 });
                 if (!cashierList)
@@ -198,16 +204,22 @@ class Cashier {
             return this.cashier.count();
         });
     }
-    countForDate(lte, gte) {
+    countForDate(lte, gte, id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                let where;
+                if (id) {
+                    where = {
+                        franchise: {
+                            id: id,
+                        },
+                    };
+                }
                 const cashierCount = yield this.cashier.count({
-                    where: {
-                        createdAt: {
+                    where: Object.assign(Object.assign({}, where), { createdAt: {
                             lte: lte,
                             gte: gte,
-                        },
-                    },
+                        } }),
                 });
                 if (!cashierCount)
                     return null;

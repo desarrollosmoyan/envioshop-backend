@@ -92,10 +92,22 @@ class Sales {
     }
   }
   async deleteOne() {}
-  async countForDate(lte: Date, gte: Date) {
+  async countForDate(lte: Date, gte: Date, id?: string) {
     try {
+      let where;
+      if (id) {
+        where = {
+          franchise: {
+            id: id,
+          },
+        };
+      }
       const saleList = await this.sale.count({
         where: {
+          ...where,
+          franchise: {
+            id: id,
+          },
           createdAt: {
             lte: lte,
             gte: gte,
@@ -127,10 +139,19 @@ class Sales {
       throw error;
     }
   }
-  async countTotalEarned(lte: Date, gte: Date) {
+  async countTotalEarned(lte: Date, gte: Date, id?: string) {
     try {
+      let where;
+      if (id) {
+        where = {
+          franchise: {
+            id: id,
+          },
+        };
+      }
       const totalEarned = await this.sale.findMany({
         where: {
+          ...where,
           createdAt: {
             lte: lte,
             gte: gte,
@@ -147,10 +168,19 @@ class Sales {
     }
   }
 
-  async getRecentShipments(lte: Date, gte: Date) {
+  async getRecentShipments(lte: Date, gte: Date, id?: string) {
     try {
+      let where;
+      if (id) {
+        where = {
+          franchise: {
+            id: id,
+          },
+        };
+      }
       const saleList = await this.sale.findMany({
         where: {
+          ...where,
           createdAt: {
             lte: lte,
             gte: gte,

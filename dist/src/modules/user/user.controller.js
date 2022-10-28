@@ -300,9 +300,11 @@ const deleteOneCashier = (req, res) => __awaiter(void 0, void 0, void 0, functio
 exports.deleteOneCashier = deleteOneCashier;
 const getAllCashiersFromOneFranchise = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { offset, limit } = req.params;
+        console.log("Entro a get all");
+        const { offset, limit } = req.query;
         const payload = (0, jsonwebtoken_1.decode)(req.token);
-        const cashiersList = yield cashier_model_1.default.getAll([parseInt(offset), parseInt(limit)], payload.id);
+        let franchiseId = payload.type === "admin" ? req.params.id : payload.id;
+        const cashiersList = yield cashier_model_1.default.getAll([parseInt(offset), parseInt(limit)], franchiseId);
         if (!cashiersList)
             throw new Error("Something wrong");
         return res

@@ -277,11 +277,14 @@ export const getAllCashiersFromOneFranchise = async (
   res: Response
 ) => {
   try {
-    const { offset, limit } = req.params;
+    console.log("Entro a get all");
+    const { offset, limit } = req.query;
     const payload = decode(req.token as string) as JwtPayload;
+    let franchiseId = payload.type === "admin" ? req.params.id : payload.id;
+
     const cashiersList = await cashierModel.getAll(
-      [parseInt(offset), parseInt(limit)],
-      payload.id
+      [parseInt(offset as string), parseInt(limit as string)],
+      franchiseId
     );
     if (!cashiersList) throw new Error("Something wrong");
     return res

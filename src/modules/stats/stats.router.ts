@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getStats } from "./stats.controller";
+import { getStats, getStatsFromOneFranchise } from "./stats.controller";
 const statsRouter = Router();
 
 statsRouter.get("/", getStats);
-
+statsRouter.get("/franchise", getStatsFromOneFranchise);
 export default statsRouter;

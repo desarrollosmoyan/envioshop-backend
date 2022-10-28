@@ -4,4 +4,5 @@ const express_1 = require("express");
 const stats_controller_1 = require("./stats.controller");
 const statsRouter = (0, express_1.Router)();
 statsRouter.get("/", stats_controller_1.getStats);
+statsRouter.get("/franchise", stats_controller_1.getStatsFromOneFranchise);
 exports.default = statsRouter;

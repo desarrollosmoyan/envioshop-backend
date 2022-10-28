@@ -121,6 +121,12 @@ class Cashier {
           email: true,
           id: true,
           createdAt: true,
+          franchise: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
         },
       });
       if (!cashierList) return null;
@@ -173,10 +179,19 @@ class Cashier {
   async count() {
     return this.cashier.count();
   }
-  async countForDate(lte: Date, gte: Date) {
+  async countForDate(lte: Date, gte: Date, id?: string) {
     try {
+      let where;
+      if (id) {
+        where = {
+          franchise: {
+            id: id,
+          },
+        };
+      }
       const cashierCount = await this.cashier.count({
         where: {
+          ...where,
           createdAt: {
             lte: lte,
             gte: gte,

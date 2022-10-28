@@ -117,16 +117,24 @@ class Sales {
     deleteOne() {
         return __awaiter(this, void 0, void 0, function* () { });
     }
-    countForDate(lte, gte) {
+    countForDate(lte, gte, id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                let where;
+                if (id) {
+                    where = {
+                        franchise: {
+                            id: id,
+                        },
+                    };
+                }
                 const saleList = yield this.sale.count({
-                    where: {
-                        createdAt: {
+                    where: Object.assign(Object.assign({}, where), { franchise: {
+                            id: id,
+                        }, createdAt: {
                             lte: lte,
                             gte: gte,
-                        },
-                    },
+                        } }),
                 });
                 if (!saleList)
                     return null;
@@ -160,16 +168,22 @@ class Sales {
             }
         });
     }
-    countTotalEarned(lte, gte) {
+    countTotalEarned(lte, gte, id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                let where;
+                if (id) {
+                    where = {
+                        franchise: {
+                            id: id,
+                        },
+                    };
+                }
                 const totalEarned = yield this.sale.findMany({
-                    where: {
-                        createdAt: {
+                    where: Object.assign(Object.assign({}, where), { createdAt: {
                             lte: lte,
                             gte: gte,
-                        },
-                    },
+                        } }),
                     select: {
                         shipmentPrice: true,
                     },
@@ -182,16 +196,22 @@ class Sales {
             }
         });
     }
-    getRecentShipments(lte, gte) {
+    getRecentShipments(lte, gte, id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                let where;
+                if (id) {
+                    where = {
+                        franchise: {
+                            id: id,
+                        },
+                    };
+                }
                 const saleList = yield this.sale.findMany({
-                    where: {
-                        createdAt: {
+                    where: Object.assign(Object.assign({}, where), { createdAt: {
                             lte: lte,
                             gte: gte,
-                        },
-                    },
+                        } }),
                     include: {
                         franchise: {
                             select: {
