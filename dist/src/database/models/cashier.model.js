@@ -230,6 +230,22 @@ class Cashier {
             }
         });
     }
+    disconnectFromFranchises(ids) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.cashier.updateMany({
+                where: {
+                    franchise: {
+                        id: {
+                            in: ids,
+                        },
+                    },
+                },
+                data: {
+                    franchiseId: {},
+                },
+            });
+        });
+    }
 }
 const cashierModel = new Cashier(prisma_1.default.cashier);
 exports.default = cashierModel;

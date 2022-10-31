@@ -28,7 +28,7 @@ class Franchise {
   constructor(private readonly franchise: PrismaClient["franchise"]) {}
   async getAll([offset = 0, limit = 20]: number[], cityName?: string) {
     let filter;
-    console.log(cityName);
+
     if (cityName) {
       filter = {
         where: {
@@ -128,8 +128,8 @@ class Franchise {
       throw error;
     }
   }
+
   async get({ id, email }: { id?: string; email?: string }) {
-    console.log("get entro");
     const franchiseFound = id
       ? await this.franchise.findUnique({
           where: { id: id },
@@ -161,7 +161,6 @@ class Franchise {
   }
   async getBySearch(valueToSearch: string, [offset = 0, limit = 20]: number[]) {
     try {
-      console.log(offset, limit);
       let where = {};
       if (valueToSearch.length > 0) {
         where = {

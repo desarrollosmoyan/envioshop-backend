@@ -277,7 +277,6 @@ export const getAllCashiersFromOneFranchise = async (
   res: Response
 ) => {
   try {
-    console.log("Entro a get all");
     const { offset, limit } = req.query;
     const payload = decode(req.token as string) as JwtPayload;
     let franchiseId = payload.type === "admin" ? req.params.id : payload.id;

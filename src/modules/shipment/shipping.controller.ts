@@ -87,6 +87,7 @@ export const createShipment = async (req: Request, res: Response) => {
 
     if (data) return res.status(200).json({ shipment: info });
   } catch (error: any) {
+    console.log(error);
     res.status(404).json({ message: error.message });
   }
 };

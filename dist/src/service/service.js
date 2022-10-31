@@ -50,41 +50,41 @@ class ApiService extends Service {
     setAuthorization() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (this.serviceName === 'FEDEX') {
+                if (this.serviceName === "FEDEX") {
                     const body = qs_1.default.stringify({
                         client_secret: `${process.env.CLIENT_SECRET}`,
                         client_id: `${process.env.CLIENT_ID}`,
                         grant_type: `${process.env.GRANT_TYPE}`,
                     });
                     const { data } = yield (0, axios_1.default)({
-                        method: 'POST',
+                        method: "POST",
                         data: body,
                         url: `${this.baseUrl}/oauth/token`,
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
+                            "Content-Type": "application/x-www-form-urlencoded",
                         },
                     });
-                    this.headers['Authorization'] = `Bearer ${data.access_token}`;
+                    this.headers["Authorization"] = `Bearer ${data.access_token}`;
                     this.auth = data;
                 }
-                else if (this.serviceName === 'REDPACK') {
-                    console.log('entro');
+                else if (this.serviceName === "REDPACK") {
+                    console.log("entro");
                     const body = qs_1.default.stringify({
-                        grant_type: 'password',
+                        grant_type: "password",
                         username: `${process.env.USERNAME_REDPACK}`,
                         password: `${process.env.PASSWORD_REDPACK}`,
                     });
                     const { data } = yield (0, axios_1.default)({
-                        method: 'POST',
+                        method: "POST",
                         data: body,
                         url: `https://api.redpack.com.mx/oauth/token`,
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            Authorization: `Basic ${Buffer.from(`${process.env.CLIENT_ID_REDPACK}:${process.env.CLIENT_SECRET_REDPACK}`).toString('base64')}`,
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            Authorization: `Basic ${Buffer.from(`${process.env.CLIENT_ID_REDPACK}:${process.env.CLIENT_SECRET_REDPACK}`).toString("base64")}`,
                         },
                     });
                     this.auth = data;
-                    this.headers['Authorization'] = `Bearer ${data.access_token}`;
+                    this.headers["Authorization"] = `Bearer ${data.access_token}`;
                 }
             }
             catch (err) {
@@ -119,9 +119,9 @@ class ApiService extends Service {
                 return new Error("This service doesn't have subServices");
             }
             const trackingInfo = this.subServices.tracking;
-            const isPost = trackingInfo.method === 'POST';
+            const isPost = trackingInfo.method === "POST";
             let body;
-            const url = `${this.baseUrl}${trackingInfo.url.replace('0', trackingNumber.toString())}`;
+            const url = `${this.baseUrl}${trackingInfo.url.replace("0", trackingNumber.toString())}`;
             console.log(url);
             if (isPost) {
                 body = (0, utils_1.formatTrackingBody)(trackingNumber);
@@ -152,7 +152,7 @@ class ApiService extends Service {
             }
             const shippingInfo = this.subServices.shipping;
             console.log(shippingInfo);
-            const isPost = shippingInfo.method === 'POST';
+            const isPost = shippingInfo.method === "POST";
             let body;
             if (isPost) {
                 body = (0, utils_1.formatShippingBody)(data, this.serviceName);
@@ -168,7 +168,6 @@ class ApiService extends Service {
                 return data;
             }
             catch (error) {
-                console.log(error);
                 throw error;
             }
         });
@@ -184,7 +183,7 @@ class ApiService extends Service {
     checkIfBaseUrlHasChanged() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const rawData = yield fs_1.promises.readFile('./src/data/settings.json', 'binary');
+                const rawData = yield fs_1.promises.readFile("./src/data/settings.json", "binary");
                 const urlMap = JSON.parse(rawData);
                 console.log({ name: this.serviceName, url: urlMap[this.serviceName] });
                 return urlMap[this.serviceName];
@@ -223,55 +222,57 @@ class ScrappingService extends Service {
                 try {
                     let prices = [
                         {
-                            serviceName: 'Dia Siguiente',
+                            serviceName: "Dia Siguiente",
                             prices: {
                                 total: 0,
                                 subTotal: 0,
                             },
-                            company: 'ESTAFETA',
+                            company: "ESTAFETA",
                         },
                         {
-                            serviceName: '2 Dias',
+                            serviceName: "2 Dias",
                             prices: {
                                 total: 0,
                                 subTotal: 0,
                             },
-                            company: 'ESTAFETA',
+                            company: "ESTAFETA",
                         },
                         {
-                            serviceName: 'Terrestre',
+                            serviceName: "Terrestre",
                             prices: {
                                 total: 0,
                                 subTotal: 0,
                             },
-                            company: 'ESTAFETA',
+                            company: "ESTAFETA",
                         },
                     ];
                     const url = `${this.baseUrl}${this.subServices.rating.url}`;
-                    yield this.page.goto('https://cotizadorsitecorecms.azurewebsites.net/?lang=0');
-                    yield this.page.click('#package');
-                    yield this.page.type('#zipCodeOri', ratingBody.originPostalCode.toString());
-                    yield this.page.type('#zipCodeDes', ratingBody.destinyPostalCode.toString());
-                    yield this.page.type('#weightPackage', ratingBody.packageSize.weight.toString());
-                    yield this.page.type('#highPackage', ratingBody.packageSize.height.toString());
-                    yield this.page.type('#longPackage', ratingBody.packageSize.length.toString());
-                    yield this.page.type('#widthPackage', ratingBody.packageSize.width.toString());
-                    yield this.page.screenshot({ path: './img.png', type: 'png' });
-                    yield this.page.click('#btnEnviarCotiza');
-                    yield this.page.screenshot({ path: './img.png', type: 'png' });
-                    yield this.page.waitForSelector('#wrapResultados');
+                    yield this.page.goto("https://cotizadorsitecorecms.azurewebsites.net/?lang=0");
+                    yield this.page.click("#package");
+                    yield this.page.type("#zipCodeOri", ratingBody.originPostalCode.toString());
+                    yield this.page.type("#zipCodeDes", ratingBody.destinyPostalCode.toString());
+                    yield this.page.type("#weightPackage", ratingBody.packageSize.weight.toString());
+                    yield this.page.type("#highPackage", ratingBody.packageSize.height.toString());
+                    yield this.page.type("#longPackage", ratingBody.packageSize.length.toString());
+                    yield this.page.type("#widthPackage", ratingBody.packageSize.width.toString());
+                    yield this.page.screenshot({ path: "./img.png", type: "png" });
+                    yield this.page.click("#btnEnviarCotiza");
+                    yield this.page.screenshot({ path: "./img.png", type: "png" });
+                    yield this.page.waitForSelector("#wrapResultados");
                     prices = yield Promise.all(prices.map((price, i) => __awaiter(this, void 0, void 0, function* () {
                         let selector = `div#cost_total_${i}`;
                         if (this.page) {
+                            if ((yield this.page.$(selector)) === null)
+                                return null;
                             price.prices.total = yield this.page.$eval(selector.toString(), (element) => element.textContent);
                             price.prices.subTotal = yield this.page.$eval(`table tbody tr:nth-child(4) td:nth-child(${i + 3})`, (element) => element.textContent);
                             return price;
                         }
                     })));
-                    console.log(prices);
-                    return prices;
+                    return prices.filter((e) => e !== null);
                 }
                 catch (error) {
+                    console.log("salto el catch");
                     return error;
                 }
         });
@@ -281,8 +282,8 @@ class ScrappingService extends Service {
             if (this.page && this.subServices) {
                 const url = `${this.baseUrl}${this.subServices.tracking.url}`;
                 yield this.page.goto(url);
-                yield this.page.type('#GuiaCodigo', trackingNumber.toString());
-                yield this.page.click('#btnRastrear');
+                yield this.page.type("#GuiaCodigo", trackingNumber.toString());
+                yield this.page.click("#btnRastrear");
             }
         });
     }

@@ -28,8 +28,8 @@ const getRating = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             REDPACKRating,
             ESTAFETARating,
         ]);
-        //const p = await (await redisConnection).get("FEDEXTOKEN");
         const dataToFormat = [...arrOfPromises];
+        console.log(dataToFormat);
         const dataFormated = [
             ...(0, utils_1.formatRatingResponse)(dataToFormat),
             ...arrOfPromises[5],
@@ -40,8 +40,8 @@ const getRating = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (error) {
-        res.status(400).send({ message: "Error" });
         console.log(error);
+        res.status(400).send({ message: "Error" });
     }
 });
 exports.getRating = getRating;
