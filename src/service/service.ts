@@ -1,13 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   formatRatingBody,
   formatTrackingBody,
   formatShippingBody,
-} from '../utils/utils';
-import puppeter, { Browser, Page } from 'puppeteer';
-import qs from 'qs';
-import { performance } from 'perf_hooks';
-import { promises as FileSystem } from 'fs';
+} from "../utils/utils";
+import puppeter, { Browser, Page } from "puppeteer";
+import qs from "qs";
+import { performance } from "perf_hooks";
+import { promises as FileSystem } from "fs";
 export abstract class Service {
   public baseUrl: string;
   public serviceName: string;
@@ -49,42 +49,42 @@ export class ApiService extends Service {
   }
   async setAuthorization(): Promise<any> {
     try {
-      if (this.serviceName === 'FEDEX') {
+      if (this.serviceName === "FEDEX") {
         const body = qs.stringify({
           client_secret: `${process.env.CLIENT_SECRET}`,
           client_id: `${process.env.CLIENT_ID}`,
           grant_type: `${process.env.GRANT_TYPE}`,
         });
         const { data } = await axios({
-          method: 'POST',
+          method: "POST",
           data: body,
           url: `${this.baseUrl}/oauth/token`,
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            "Content-Type": "application/x-www-form-urlencoded",
           },
         });
-        this.headers['Authorization'] = `Bearer ${data.access_token}`;
+        this.headers["Authorization"] = `Bearer ${data.access_token}`;
         this.auth = data;
-      } else if (this.serviceName === 'REDPACK') {
-        console.log('entro');
+      } else if (this.serviceName === "REDPACK") {
+        console.log("entro");
         const body = qs.stringify({
-          grant_type: 'password',
+          grant_type: "password",
           username: `${process.env.USERNAME_REDPACK}`,
           password: `${process.env.PASSWORD_REDPACK}`,
         });
         const { data } = await axios({
-          method: 'POST',
+          method: "POST",
           data: body,
           url: `https://api.redpack.com.mx/oauth/token`,
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            "Content-Type": "application/x-www-form-urlencoded",
             Authorization: `Basic ${Buffer.from(
               `${process.env.CLIENT_ID_REDPACK}:${process.env.CLIENT_SECRET_REDPACK}`
-            ).toString('base64')}`,
+            ).toString("base64")}`,
           },
         });
         this.auth = data;
-        this.headers['Authorization'] = `Bearer ${data.access_token}`;
+        this.headers["Authorization"] = `Bearer ${data.access_token}`;
       }
     } catch (err: any) {
       console.log(err.response.data);
@@ -113,10 +113,10 @@ export class ApiService extends Service {
       return new Error("This service doesn't have subServices");
     }
     const trackingInfo = this.subServices.tracking;
-    const isPost = trackingInfo.method === 'POST';
+    const isPost = trackingInfo.method === "POST";
     let body;
     const url = `${this.baseUrl}${(trackingInfo.url as string).replace(
-      '0',
+      "0",
       trackingNumber.toString()
     )}`;
     console.log(url);
@@ -144,7 +144,7 @@ export class ApiService extends Service {
     }
     const shippingInfo = this.subServices.shipping;
     console.log(shippingInfo);
-    const isPost = shippingInfo.method === 'POST';
+    const isPost = shippingInfo.method === "POST";
     let body;
     if (isPost) {
       body = formatShippingBody(data, this.serviceName);
@@ -173,8 +173,8 @@ export class ApiService extends Service {
   async checkIfBaseUrlHasChanged() {
     try {
       const rawData = await FileSystem.readFile(
-        './src/data/settings.json',
-        'binary'
+        "./src/data/settings.json",
+        "binary"
       );
       const urlMap = JSON.parse(rawData);
       console.log({ name: this.serviceName, url: urlMap[this.serviceName] });
@@ -209,63 +209,63 @@ export class ScrappingService extends Service {
       try {
         let prices: any = [
           {
-            serviceName: 'Dia Siguiente',
+            serviceName: "Dia Siguiente",
             prices: {
               total: 0,
               subTotal: 0,
             },
-            company: 'ESTAFETA',
+            company: "ESTAFETA",
           },
           {
-            serviceName: '2 Dias',
+            serviceName: "2 Dias",
             prices: {
               total: 0,
               subTotal: 0,
             },
-            company: 'ESTAFETA',
+            company: "ESTAFETA",
           },
           {
-            serviceName: 'Terrestre',
+            serviceName: "Terrestre",
             prices: {
               total: 0,
               subTotal: 0,
             },
-            company: 'ESTAFETA',
+            company: "ESTAFETA",
           },
         ];
         const url = `${this.baseUrl}${this.subServices.rating.url}`;
         await this.page.goto(
-          'https://cotizadorsitecorecms.azurewebsites.net/?lang=0'
+          "https://cotizadorsitecorecms.azurewebsites.net/?lang=0"
         );
-        await this.page.click('#package');
+        await this.page.click("#package");
         await this.page.type(
-          '#zipCodeOri',
+          "#zipCodeOri",
           ratingBody.originPostalCode.toString()
         );
         await this.page.type(
-          '#zipCodeDes',
+          "#zipCodeDes",
           ratingBody.destinyPostalCode.toString()
         );
         await this.page.type(
-          '#weightPackage',
+          "#weightPackage",
           ratingBody.packageSize.weight.toString()
         );
         await this.page.type(
-          '#highPackage',
+          "#highPackage",
           ratingBody.packageSize.height.toString()
         );
         await this.page.type(
-          '#longPackage',
+          "#longPackage",
           ratingBody.packageSize.length.toString()
         );
         await this.page.type(
-          '#widthPackage',
+          "#widthPackage",
           ratingBody.packageSize.width.toString()
         );
-        await this.page.screenshot({ path: './img.png', type: 'png' });
-        await this.page.click('#btnEnviarCotiza');
-        await this.page.screenshot({ path: './img.png', type: 'png' });
-        await this.page.waitForSelector('#wrapResultados');
+        await this.page.screenshot({ path: "./img.png", type: "png" });
+        await this.page.click("#btnEnviarCotiza");
+        await this.page.screenshot({ path: "./img.png", type: "png" });
+        await this.page.waitForSelector("#wrapResultados");
 
         prices = await Promise.all(
           prices.map(async (price: any, i: number) => {
@@ -293,8 +293,8 @@ export class ScrappingService extends Service {
     if (this.page && this.subServices) {
       const url = `${this.baseUrl}${this.subServices.tracking.url}`;
       await this.page.goto(url);
-      await this.page.type('#GuiaCodigo', trackingNumber.toString());
-      await this.page.click('#btnRastrear');
+      await this.page.type("#GuiaCodigo", trackingNumber.toString());
+      await this.page.click("#btnRastrear");
     }
   }
   async getPicking(): Promise<void | Error> {

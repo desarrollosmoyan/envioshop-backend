@@ -29,11 +29,10 @@ const getRating = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             ESTAFETARating,
         ]);
         //const p = await (await redisConnection).get("FEDEXTOKEN");
-        const dataToFormat = [...arrOfPromises];
-        const dataFormated = [
-            ...(0, utils_1.formatRatingResponse)(dataToFormat),
-            ...arrOfPromises[5],
-        ].flatMap((element) => element);
+        const dataToFormat = [...arrOfPromises].flat(1);
+        const dataFormated = [...(0, utils_1.formatRatingResponse)(dataToFormat)]
+            .flatMap((element) => element)
+            .filter((item) => item);
         res.status(200).json({
             message: "Rating maked successfully",
             data: dataFormated,
