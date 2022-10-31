@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMe = exports.getAllCashiersFromOneFranchise = exports.deleteOneCashier = exports.getFranchiseBySearch = exports.getOneCashier = exports.updateOneCashier = exports.createACashier = exports.createAFranchise = exports.deleteManyCashiers = exports.deleteManyFranchises = exports.deleteOneFranchise = exports.updateOneFranchise = exports.getAllCashiers = exports.getOneFranchise = exports.getAllFranchisesCities = exports.getAllFranchisesByCity = exports.getAllFranchises = exports.createOneAdmin = exports.getUser = void 0;
+const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const admin_model_1 = __importDefault(require("../../database/models/admin.model"));
 const cashier_model_1 = __importDefault(require("../../database/models/cashier.model"));
@@ -175,9 +176,41 @@ const deleteOneFranchise = (req, res) => __awaiter(void 0, void 0, void 0, funct
 exports.deleteOneFranchise = deleteOneFranchise;
 const deleteManyFranchises = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const prisma = new client_1.PrismaClient();
         const franchisesIds = req.body.ids;
-        const deletedFranchises = yield franchise_model_1.default.deleteMany(franchisesIds);
-        if (!deletedFranchises)
+        const allConnectedIds = (yield prisma.franchise.findMany({
+            where: {
+                id: {
+                    in: franchisesIds,
+                },
+            },
+            include: {
+                cashiers: true,
+            },
+        }))
+            .map((franchise) => franchise.cashiers.map((cashier) => cashier.id))
+            .flat(1);
+        console.log({ allConnectedIds });
+        const deleteFranchise = prisma.franchise.deleteMany({
+            where: {
+                id: {
+                    in: franchisesIds,
+                },
+            },
+        });
+        const deleteCashiers = prisma.cashier.deleteMany({
+            where: {
+                id: {
+                    in: allConnectedIds,
+                },
+            },
+        });
+        const transaction = yield prisma.$transaction([
+            deleteFranchise,
+            deleteCashiers,
+        ]);
+        /* const deletedFranchises = await franchiseModel.deleteMany(franchisesIds); */
+        if (!transaction)
             throw new Error("Something is wrong");
         res.status(200).json({ message: "Sucessfully operation" });
     }

@@ -1,4 +1,4 @@
-import { Franchise, prisma } from "@prisma/client";
+import { Franchise, PrismaClient } from "@prisma/client";
 import axios from "axios";
 import { NextFunction, Request, Response } from "express";
 import { decode, JwtPayload } from "jsonwebtoken";
@@ -158,9 +158,45 @@ export const deleteOneFranchise = async (req: Request, res: Response) => {
 
 export const deleteManyFranchises = async (req: Request, res: Response) => {
   try {
+    const prisma = new PrismaClient();
     const franchisesIds = req.body.ids;
-    const deletedFranchises = await franchiseModel.deleteMany(franchisesIds);
-    if (!deletedFranchises) throw new Error("Something is wrong");
+    const allConnectedIds = (
+      await prisma.franchise.findMany({
+        where: {
+          id: {
+            in: franchisesIds,
+          },
+        },
+        include: {
+          cashiers: true,
+        },
+      })
+    )
+      .map((franchise) => franchise.cashiers.map((cashier) => cashier.id))
+      .flat(1);
+    console.log({ allConnectedIds });
+
+    const deleteFranchise = prisma.franchise.deleteMany({
+      where: {
+        id: {
+          in: franchisesIds,
+        },
+      },
+    });
+    const deleteCashiers = prisma.cashier.deleteMany({
+      where: {
+        id: {
+          in: allConnectedIds,
+        },
+      },
+    });
+
+    const transaction = await prisma.$transaction([
+      deleteFranchise,
+      deleteCashiers,
+    ]);
+    /* const deletedFranchises = await franchiseModel.deleteMany(franchisesIds); */
+    if (!transaction) throw new Error("Something is wrong");
     res.status(200).json({ message: "Sucessfully operation" });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
