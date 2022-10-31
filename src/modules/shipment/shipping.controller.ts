@@ -48,6 +48,7 @@ export const createShipment = async (req: Request, res: Response) => {
         turnId: turnId,
         shipmentTrackingNumber: "",
       });
+      return res.status(200).json({ shipment: newSale });
     }
     const data = await shippingService.createShipping(req.body);
     const info = await formatShippingResponse(data, company);

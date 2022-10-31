@@ -77,6 +77,7 @@ const createShipment = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 turnId: turnId,
                 shipmentTrackingNumber: "",
             });
+            return res.status(200).json({ shipment: newSale });
         }
         const data = yield shippingService.createShipping(req.body);
         const info = yield (0, utils_1.formatShippingResponse)(data, company);

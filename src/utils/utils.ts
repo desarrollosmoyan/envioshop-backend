@@ -775,8 +775,9 @@ const iterateAndLevel = ({
           subTotal: item.totalNetFedExCharge,
           total: item.totalNetCharge,
         };
-      });
+      })[0];
       let serviceName = service.serviceName;
+
       return {
         serviceName: serviceName,
         prices: { ...price },
