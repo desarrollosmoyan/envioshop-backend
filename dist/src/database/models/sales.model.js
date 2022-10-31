@@ -98,7 +98,9 @@ class Sales {
                     };
                 }
                 console.log(where);
-                const saleList = yield this.sale.findMany(Object.assign(Object.assign({ skip: offset, take: limit }, where), { include: {
+                const saleList = yield this.sale.findMany(Object.assign(Object.assign({ skip: offset, take: limit }, where), { orderBy: {
+                        createdAt: "desc",
+                    }, include: {
                         franchise: {
                             select: {
                                 id: true,

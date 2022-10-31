@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateToken = exports.verifyPassword = exports.encryptPassword = exports.whichUserTypeIsIt = exports.loginUserByType = exports.createUserByType = exports.selectUserByRoleAndReturn = exports.formatRatingResponse = exports.formatShippingResponse = exports.formatShippingBody = exports.formatTrackingBody = exports.makeTrackRequest = exports.formatRatingBody = void 0;
+exports.formatRatingParams = exports.generateToken = exports.verifyPassword = exports.encryptPassword = exports.whichUserTypeIsIt = exports.loginUserByType = exports.createUserByType = exports.selectUserByRoleAndReturn = exports.formatRatingResponse = exports.formatShippingResponse = exports.formatShippingBody = exports.formatTrackingBody = exports.makeTrackRequest = exports.formatRatingBody = void 0;
 const axios_1 = __importDefault(require("axios"));
 const admin_model_1 = __importDefault(require("../database/models/admin.model"));
 const cashier_model_1 = __importDefault(require("../database/models/cashier.model"));
@@ -95,7 +95,7 @@ const formatRatingBody = (body, schema) => {
                 number: "980391677",
             },
         ],
-        plannedShippingDateAndTime: "2022-11-25T13:00:00GMT+00:00",
+        plannedShippingDateAndTime: formattedTime,
         unitOfMeasurement: "metric",
         isCustomsDeclarable: true,
         monetaryAmount: [
@@ -110,7 +110,7 @@ const formatRatingBody = (body, schema) => {
         nextBusinessDay: false,
         packages: [
             {
-                weight: 1,
+                weight: body.packageSize.weight,
                 dimensions: {
                     width: body.packageSize.width,
                     height: body.packageSize.height,
@@ -172,15 +172,15 @@ const formatRatingBody = (body, schema) => {
                         UnitOfMeasurement: {
                             Code: "CM",
                         },
-                        Length: "10",
-                        Width: "7",
-                        Height: "5",
+                        Length: body.packageSize.length.toString(),
+                        Width: body.packageSize.width.toString(),
+                        Height: body.packageSize.height.toString(),
                     },
                     PackageWeight: {
                         UnitOfMeasurement: {
                             Code: "KGS",
                         },
-                        Weight: "7",
+                        Weight: body.packageSize.weight.toString(),
                     },
                 },
             },
@@ -724,12 +724,13 @@ const iterateAndLevel = ({ output, products, RateResponse, body, values, }) => {
         const arr = products;
         return arr.map((service) => {
             let price = service.totalPrice.find((item) => item.currencyType.includes("PULCL"));
+            let subTotal = service.totalPriceBreakdown.find((item) => item.typeCode.includes("SPRQT"));
             let serviceName = service.productName;
             return {
                 serviceName: serviceName,
                 prices: {
-                    total: (price.price + 44.67).toFixed(2),
-                    subTotal: price.price,
+                    total: price.price,
+                    subTotal: subTotal.price,
                 },
                 company: "DHL",
             };
@@ -875,3 +876,30 @@ const generateToken = (id, email, type) => __awaiter(void 0, void 0, void 0, fun
     return jsonwebtoken_1.default.sign({ id: id, email: email, type: type }, `${process.env.SECRET_KEY_TOKEN}`);
 });
 exports.generateToken = generateToken;
+const formatRatingParams = (body, companyName) => {
+    let obj;
+    if (companyName === "DHL") {
+        const date = new Date(Date.now());
+        const parsed = [
+            date.getFullYear(),
+            (date.getMonth() + 1).toString().padStart(2, "0"),
+            date.getDate().toString().padStart(2, "0"),
+        ].join("-");
+        obj = {
+            accountNumber: "980391677",
+            originCountryCode: "MX",
+            destinationCountryCode: "MX",
+            weight: body.packageSize.weight,
+            width: body.packageSize.width,
+            length: body.packageSize.length,
+            unitOfMeasurement: "metric",
+            plannedShippingDate: parsed,
+            originCityName: "envioshop",
+            originPostalCode: body.originPostalCode,
+            destinationCityName: body.destinyPostalCode,
+            isCustomsDeclarable: true,
+            returnStandardProductsOnly: true,
+        };
+    }
+};
+exports.formatRatingParams = formatRatingParams;

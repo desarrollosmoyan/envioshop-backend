@@ -93,7 +93,7 @@ export const formatRatingBody = (body: Rating, schema: string) => {
         number: "980391677",
       },
     ],
-    plannedShippingDateAndTime: "2022-11-25T13:00:00GMT+00:00",
+    plannedShippingDateAndTime: formattedTime,
     unitOfMeasurement: "metric",
     isCustomsDeclarable: true,
     monetaryAmount: [
@@ -108,7 +108,7 @@ export const formatRatingBody = (body: Rating, schema: string) => {
     nextBusinessDay: false,
     packages: [
       {
-        weight: 1,
+        weight: body.packageSize.weight,
         dimensions: {
           width: body.packageSize.width,
           height: body.packageSize.height,
@@ -171,15 +171,15 @@ export const formatRatingBody = (body: Rating, schema: string) => {
             UnitOfMeasurement: {
               Code: "CM",
             },
-            Length: "10",
-            Width: "7",
-            Height: "5",
+            Length: body.packageSize.length.toString(),
+            Width: body.packageSize.width.toString(),
+            Height: body.packageSize.height.toString(),
           },
           PackageWeight: {
             UnitOfMeasurement: {
               Code: "KGS",
             },
-            Weight: "7",
+            Weight: body.packageSize.weight.toString(),
           },
         },
       },
@@ -790,12 +790,15 @@ const iterateAndLevel = ({
       let price = service.totalPrice.find((item: any) =>
         item.currencyType.includes("PULCL")
       );
+      let subTotal = service.totalPriceBreakdown.find((item: any) =>
+        item.typeCode.includes("SPRQT")
+      );
       let serviceName = service.productName;
       return {
         serviceName: serviceName,
         prices: {
-          total: (price.price + 44.67).toFixed(2),
-          subTotal: price.price,
+          total: price.price,
+          subTotal: subTotal.price,
         },
         company: "DHL",
       };
@@ -945,4 +948,31 @@ export const generateToken = async (
     { id: id, email: email, type: type },
     `${process.env.SECRET_KEY_TOKEN}`
   );
+};
+
+export const formatRatingParams = (body: Rating, companyName: string) => {
+  let obj;
+  if (companyName === "DHL") {
+    const date = new Date(Date.now());
+    const parsed = [
+      date.getFullYear(),
+      (date.getMonth() + 1).toString().padStart(2, "0"),
+      date.getDate().toString().padStart(2, "0"),
+    ].join("-");
+    obj = {
+      accountNumber: "980391677",
+      originCountryCode: "MX",
+      destinationCountryCode: "MX",
+      weight: body.packageSize.weight,
+      width: body.packageSize.width,
+      length: body.packageSize.length,
+      unitOfMeasurement: "metric",
+      plannedShippingDate: parsed,
+      originCityName: "envioshop",
+      originPostalCode: body.originPostalCode,
+      destinationCityName: body.destinyPostalCode,
+      isCustomsDeclarable: true,
+      returnStandardProductsOnly: true,
+    };
+  }
 };

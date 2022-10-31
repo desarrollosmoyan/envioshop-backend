@@ -91,6 +91,9 @@ class Sales {
         skip: offset,
         take: limit,
         ...where,
+        orderBy: {
+          createdAt: "desc",
+        },
         include: {
           franchise: {
             select: {
