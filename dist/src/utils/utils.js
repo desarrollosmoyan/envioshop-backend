@@ -711,7 +711,7 @@ const iterateAndLevel = ({ output, products, RateResponse, body, values, }) => {
                     subTotal: item.totalNetFedExCharge,
                     total: item.totalNetCharge,
                 };
-            });
+            })[0];
             let serviceName = service.serviceName;
             return {
                 serviceName: serviceName,
