@@ -33,7 +33,7 @@ model Franchise {
   name      String    @unique
   ubication String
   cellphone String
-  cashiers  Cashier[]
+  cashiers  Cashier[] 
   sales     Sales[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -44,8 +44,8 @@ model Cashier {
   email       String    @unique
   password    String
   name        String    @unique
-  franchise   Franchise @relation(fields: [franchiseId], references: [id])
-  franchiseId String    @db.ObjectId
+  franchise   Franchise? @relation(fields: [franchiseId], references: [id])
+  franchiseId String?    @db.ObjectId
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   Turn        Turn?
