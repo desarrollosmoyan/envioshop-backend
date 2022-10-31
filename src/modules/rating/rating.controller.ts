@@ -36,7 +36,7 @@ export const getRating = async (req: Request, res: Response) => {
       data: dataFormated,
     });
   } catch (error) {
-    res.status(400).send({ message: "Error" });
     console.log(error);
+    res.status(400).send({ message: "Error" });
   }
 };

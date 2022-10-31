@@ -333,7 +333,6 @@ const deleteOneCashier = (req, res) => __awaiter(void 0, void 0, void 0, functio
 exports.deleteOneCashier = deleteOneCashier;
 const getAllCashiersFromOneFranchise = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("Entro a get all");
         const { offset, limit } = req.query;
         const payload = (0, jsonwebtoken_1.decode)(req.token);
         let franchiseId = payload.type === "admin" ? req.params.id : payload.id;

@@ -39,8 +39,8 @@ const getRating = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (error) {
-        res.status(400).send({ message: "Error" });
         console.log(error);
+        res.status(400).send({ message: "Error" });
     }
 });
 exports.getRating = getRating;

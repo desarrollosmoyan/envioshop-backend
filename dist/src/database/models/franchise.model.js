@@ -22,7 +22,6 @@ class Franchise {
     getAll([offset = 0, limit = 20], cityName) {
         return __awaiter(this, void 0, void 0, function* () {
             let filter;
-            console.log(cityName);
             if (cityName) {
                 filter = {
                     where: {
@@ -130,7 +129,6 @@ class Franchise {
     }
     get({ id, email }) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("get entro");
             const franchiseFound = id
                 ? yield this.franchise.findUnique({
                     where: { id: id },
@@ -167,7 +165,6 @@ class Franchise {
     getBySearch(valueToSearch, [offset = 0, limit = 20]) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(offset, limit);
                 let where = {};
                 if (valueToSearch.length > 0) {
                     where = {

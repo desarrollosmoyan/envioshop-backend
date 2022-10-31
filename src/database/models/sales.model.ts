@@ -26,7 +26,7 @@ class Sales {
   async create(data: SalesData) {
     try {
       const { franchiseId, turnId, ...newData } = data;
-      console.log(data);
+
       const newSale = await this.sale.create({
         data: {
           ...newData,

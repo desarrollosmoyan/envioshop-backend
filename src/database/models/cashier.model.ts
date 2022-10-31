@@ -204,6 +204,20 @@ class Cashier {
       throw error;
     }
   }
+  async disconnectFromFranchises(ids: string[]) {
+    await this.cashier.updateMany({
+      where: {
+        franchise: {
+          id: {
+            in: ids,
+          },
+        },
+      },
+      data: {
+        franchiseId: {},
+      },
+    });
+  }
 }
 
 const cashierModel = new Cashier(prisma.cashier);

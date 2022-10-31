@@ -159,7 +159,6 @@ export class ApiService extends Service {
       });
       return data;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
@@ -271,6 +270,7 @@ export class ScrappingService extends Service {
           prices.map(async (price: any, i: number) => {
             let selector = `div#cost_total_${i}`;
             if (this.page) {
+              if ((await this.page.$(selector)) === null) return null;
               price.prices.total = await this.page.$eval(
                 selector.toString(),
                 (element) => element.textContent
@@ -283,9 +283,9 @@ export class ScrappingService extends Service {
             }
           })
         );
-        console.log(prices);
-        return prices;
+        return prices.filter((e: any) => e !== null);
       } catch (error: any) {
+        console.log("salto el catch");
         return error;
       }
   }

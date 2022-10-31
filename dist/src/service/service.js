@@ -168,7 +168,6 @@ class ApiService extends Service {
                 return data;
             }
             catch (error) {
-                console.log(error);
                 throw error;
             }
         });
@@ -263,15 +262,17 @@ class ScrappingService extends Service {
                     prices = yield Promise.all(prices.map((price, i) => __awaiter(this, void 0, void 0, function* () {
                         let selector = `div#cost_total_${i}`;
                         if (this.page) {
+                            if ((yield this.page.$(selector)) === null)
+                                return null;
                             price.prices.total = yield this.page.$eval(selector.toString(), (element) => element.textContent);
                             price.prices.subTotal = yield this.page.$eval(`table tbody tr:nth-child(4) td:nth-child(${i + 3})`, (element) => element.textContent);
                             return price;
                         }
                     })));
-                    console.log(prices);
-                    return prices;
+                    return prices.filter((e) => e !== null);
                 }
                 catch (error) {
+                    console.log("salto el catch");
                     return error;
                 }
         });
