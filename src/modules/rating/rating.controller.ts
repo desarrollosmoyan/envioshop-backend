@@ -28,6 +28,7 @@ export const getRating = async (req: Request, res: Response) => {
     ]);
     //const p = await (await redisConnection).get("FEDEXTOKEN");
     const dataToFormat = [...arrOfPromises].flat(1);
+    console.log(dataToFormat);
     const dataFormated = [...formatRatingResponse(dataToFormat)]
       .flatMap((element) => element)
       .filter((item) => item);

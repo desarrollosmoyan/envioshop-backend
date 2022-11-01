@@ -7,43 +7,36 @@ import { decode, JwtPayload } from "jsonwebtoken";
 export const getStats = async (req: Request, res: Response) => {
   const payload = decode(req.token as string) as JwtPayload;
   const id = payload.id;
+  console.log(payload);
   if (payload.type === "admin") {
     try {
       const today = new Date(Date.now());
       const prevDays = new Date();
       prevDays.setDate(today.getDate() - 7);
       const totalShipments = await salesModel.countForDate(today, prevDays);
-      if (!totalShipments) {
-        return res.status(400).json({ message: "Something wrong" });
-      }
-
+      console.log(totalShipments);
       const totalEarned = await salesModel.countTotalEarned(today, prevDays);
       const totalFranchises = await franchiseModel.countForDate(
         today,
         prevDays
       );
-      if (!totalEarned && !totalFranchises)
-        return res.status(400).json({ message: "Something wrong" });
-
-      if (!totalShipments) {
-        return res.status(400).json({ message: "Something wrong" });
-      }
       const totalCashiers = await cashierModel.countForDate(today, prevDays);
-
       const recentShipments = await salesModel.getRecentShipments(
         today,
         prevDays
       );
+
       const topFranchises = await franchiseModel.getTopFranchises();
       if (!topFranchises) throw new Error("error");
+
       res.status(200).json({
         message: "Stats getted successfully",
         totalCashiers: totalCashiers,
         totalFranchises: totalFranchises,
-        totalShipments: totalShipments,
-        totalEarned: totalEarned,
-        recentShipments: recentShipments,
-        topFranchises: topFranchises,
+        totalShipments: totalShipments ? totalShipments : 0,
+        totalEarned: totalEarned ? totalEarned.toFixed(2) : 0,
+        recentShipments: recentShipments ? recentShipments : null,
+        topFranchises: topFranchises ? topFranchises : null,
       });
     } catch (err: any) {
       console.log(err);
@@ -79,14 +72,14 @@ export const getStats = async (req: Request, res: Response) => {
       const topFranchises = await franchiseModel.getTopFranchises();
       res.status(200).json({
         message: "Stats getted successfully",
-        totalCashiers: totalCashiers,
+        totalCashiers: totalEarned,
         totalShipments: totalShipments,
         totalEarned: totalEarned,
         recentShipments: recentShipments,
         topFranchises: topFranchises,
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log(error.message);
       res.status(400).json({ message: "Error something happened" });
     }
   }
@@ -117,10 +110,10 @@ export const getStatsFromOneFranchise = async (req: Request, res: Response) => {
     const topFranchises = await franchiseModel.getTopFranchises();
     res.status(200).json({
       message: "Stats getted successfully",
-      totalCashiers: totalCashiers,
-      totalShipments: totalShipments,
-      totalEarned: totalEarned,
-      topFranchises: topFranchises,
+      totalCashiers: totalCashiers ? totalCashiers : 0,
+      totalShipments: totalShipments ? totalShipments : 0,
+      totalEarned: totalEarned ? totalEarned.toFixed(2) : 0,
+      topFranchises: topFranchises ? topFranchises : 0,
     });
   } catch (error) {
     console.log(error);

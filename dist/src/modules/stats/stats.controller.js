@@ -20,22 +20,16 @@ const jsonwebtoken_1 = require("jsonwebtoken");
 const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const payload = (0, jsonwebtoken_1.decode)(req.token);
     const id = payload.id;
+    console.log(payload);
     if (payload.type === "admin") {
         try {
             const today = new Date(Date.now());
             const prevDays = new Date();
             prevDays.setDate(today.getDate() - 7);
             const totalShipments = yield sales_model_1.default.countForDate(today, prevDays);
-            if (!totalShipments) {
-                return res.status(400).json({ message: "Something wrong" });
-            }
+            console.log(totalShipments);
             const totalEarned = yield sales_model_1.default.countTotalEarned(today, prevDays);
             const totalFranchises = yield franchise_model_1.default.countForDate(today, prevDays);
-            if (!totalEarned && !totalFranchises)
-                return res.status(400).json({ message: "Something wrong" });
-            if (!totalShipments) {
-                return res.status(400).json({ message: "Something wrong" });
-            }
             const totalCashiers = yield cashier_model_1.default.countForDate(today, prevDays);
             const recentShipments = yield sales_model_1.default.getRecentShipments(today, prevDays);
             const topFranchises = yield franchise_model_1.default.getTopFranchises();
@@ -45,10 +39,10 @@ const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 message: "Stats getted successfully",
                 totalCashiers: totalCashiers,
                 totalFranchises: totalFranchises,
-                totalShipments: totalShipments,
-                totalEarned: totalEarned,
-                recentShipments: recentShipments,
-                topFranchises: topFranchises,
+                totalShipments: totalShipments ? totalShipments : 0,
+                totalEarned: totalEarned ? totalEarned.toFixed(2) : 0,
+                recentShipments: recentShipments ? recentShipments : null,
+                topFranchises: topFranchises ? topFranchises : null,
             });
         }
         catch (err) {
@@ -70,7 +64,7 @@ const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const topFranchises = yield franchise_model_1.default.getTopFranchises();
             res.status(200).json({
                 message: "Stats getted successfully",
-                totalCashiers: totalCashiers,
+                totalCashiers: totalEarned,
                 totalShipments: totalShipments,
                 totalEarned: totalEarned,
                 recentShipments: recentShipments,
@@ -78,7 +72,7 @@ const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             });
         }
         catch (error) {
-            console.log(error);
+            console.log(error.message);
             res.status(400).json({ message: "Error something happened" });
         }
     }
@@ -97,10 +91,10 @@ const getStatsFromOneFranchise = (req, res) => __awaiter(void 0, void 0, void 0,
         const topFranchises = yield franchise_model_1.default.getTopFranchises();
         res.status(200).json({
             message: "Stats getted successfully",
-            totalCashiers: totalCashiers,
-            totalShipments: totalShipments,
-            totalEarned: totalEarned,
-            topFranchises: topFranchises,
+            totalCashiers: totalCashiers ? totalCashiers : 0,
+            totalShipments: totalShipments ? totalShipments : 0,
+            totalEarned: totalEarned ? totalEarned.toFixed(2) : 0,
+            topFranchises: topFranchises ? topFranchises : 0,
         });
     }
     catch (error) {

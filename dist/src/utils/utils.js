@@ -95,7 +95,7 @@ const formatRatingBody = (body, schema) => {
                 number: "980391677",
             },
         ],
-        plannedShippingDateAndTime: formattedTime,
+        plannedShippingDateAndTime: "2022-11-25T13:00:00GMT+00:00",
         unitOfMeasurement: "metric",
         isCustomsDeclarable: true,
         monetaryAmount: [
@@ -724,8 +724,18 @@ const iterateAndLevel = ({ output, products, RateResponse, body, values, }) => {
         const arr = products;
         return arr.map((service) => {
             let price = service.totalPrice.find((item) => item.currencyType.includes("PULCL"));
-            let subTotal = service.totalPriceBreakdown.find((item) => item.typeCode.includes("SPRQT"));
+            let subTotal = service.totalPriceBreakdown
+                .find((item) => item.currencyType.includes("PULCL") ? true : false)
+                .priceBreakdown.find((item) => item.typeCode.includes("SPRQT"));
             let serviceName = service.productName;
+            console.log({
+                serviceName: serviceName,
+                prices: {
+                    total: price.price,
+                    subTotal: subTotal.price,
+                },
+                company: "DHL",
+            });
             return {
                 serviceName: serviceName,
                 prices: {

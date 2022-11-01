@@ -172,6 +172,7 @@ class Sales {
   async countTotalEarned(lte: Date, gte: Date, id?: string) {
     try {
       let where;
+
       if (id) {
         where = {
           franchise: {
@@ -192,7 +193,10 @@ class Sales {
         },
       });
       const total = totalEarned.map((item) => Object.values(item)[0]);
-      return total.reduce((prev, current) => prev + current, 0);
+      return total.reduce(
+        (prev, current) => (prev as number) + (current as number),
+        0
+      );
     } catch (error) {
       throw error;
     }
